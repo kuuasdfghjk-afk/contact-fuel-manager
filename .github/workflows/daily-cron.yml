@@ -1,0 +1,19 @@
+name: Daily 08:00 JST Notification Cron
+
+on:
+  schedule:
+    - cron: "0 23 * * *"
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run 08:00 AM Contact & Fuel Deadline Notifications
+        run: python3 server.py --run-cron
