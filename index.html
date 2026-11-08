@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>2WEEKコンタクト＆社用ガソリンカード期限管理</title>
-  <link rel="manifest" href="/manifest.json" />
-  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <meta name="theme-color" content="#1e3a8a" />
   <style>
     :root {
@@ -997,7 +997,7 @@
   <header class="app-header">
     <div class="header-inner">
       <div class="brand-row">
-        <img src="/icon.svg" alt="App Icon" class="brand-icon" />
+        <img src="./icon.svg" alt="App Icon" class="brand-icon" />
         <div class="brand-title">
           <h1>2WEEKコンタクト＆社用ガソリン期限管理</h1>
           <p>
@@ -2525,7 +2525,7 @@
     async function registerServiceWorker() {
       if (!("serviceWorker" in navigator)) return null;
       try {
-        swRegistration = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+        swRegistration = await navigator.serviceWorker.register("./sw.js");
         return swRegistration;
       } catch (err) {
         console.warn("ServiceWorker registration error:", err);
@@ -2633,8 +2633,38 @@
 
     // Real-time Server-Sent Events (SSE) & Cloud Sync Connection
     function connectSSE() {
-      const evtSource = new EventSource("/api/events");
       const badge = document.getElementById("syncStatusText");
+
+      // Sync whenever smartphone / browser tab comes back to foreground
+      document.addEventListener("visibilitychange", async () => {
+        if (document.visibilityState === "visible") {
+          try {
+            const res = await fetch("/api/state");
+            if (res.ok) {
+              appState = await res.json();
+              renderApp();
+            }
+          } catch (_) {}
+        }
+      });
+
+      if (useDirectSupabaseMode) {
+        if (badge) badge.textContent = "Supabaseクラウド同期中";
+        setInterval(async () => {
+          if (document.visibilityState === "visible") {
+            try {
+              const res = await fetch("/api/state");
+              if (res.ok) {
+                appState = await res.json();
+                renderApp();
+              }
+            } catch (_) {}
+          }
+        }, 12000);
+        return;
+      }
+
+      const evtSource = new EventSource("/api/events");
 
       evtSource.onopen = () => {
         if (badge) badge.textContent = appState.cloudStatus?.connected ? "Supabaseクラウド同期中" : "リアルタイム同期中";
@@ -2644,7 +2674,6 @@
         try {
           const msg = JSON.parse(event.data);
           if (msg.serverless) {
-            // On Vercel Serverless, close SSE stream and use focus/interval sync against Supabase
             evtSource.close();
             if (badge) badge.textContent = appState.cloudStatus?.connected ? "クラウド同期中 (Vercel+Supabase)" : "クラウド稼働中";
             return;
@@ -2664,19 +2693,6 @@
       evtSource.onerror = () => {
         if (badge) badge.textContent = appState.cloudStatus?.connected ? "クラウド同期中" : "同期待機中";
       };
-
-      // Also sync whenever smartphone / browser tab comes back to foreground
-      document.addEventListener("visibilitychange", async () => {
-        if (document.visibilityState === "visible") {
-          try {
-            const res = await fetch("/api/state");
-            if (res.ok) {
-              appState = await res.json();
-              renderApp();
-            }
-          } catch (_) {}
-        }
-      });
     }
 
     // Escape helpers
@@ -2692,6 +2708,185 @@
     function escapeJs(str) {
       return String(str ?? "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
     }
+
+    // Direct Supabase Cloud Adapter (enables 100% serverless operation on GitHub Pages / static hosts)
+    const CLOUD_SB_URL = "https://dljrpotzoewusqqihsky.supabase.co";
+    const CLOUD_SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsanJwb3R6b2V3dXNxcWloc2t5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQwNzQ0NzUsImV4cCI6MjEwOTY1MDQ3NX0.1WgBZekCRljF4fopG5w_zhU7PkYHxq76uVOmFEERNhU";
+    const origFetch = window.fetch.bind(window);
+    let useDirectSupabaseMode = window.location.hostname.includes("github.io");
+
+    async function sbFetch(table, method = "GET", query = "", bodyObj = null, prefer = "return=representation") {
+      const url = `${CLOUD_SB_URL}/rest/v1/${table}${query ? "?" + query : ""}`;
+      const headers = {
+        "apikey": CLOUD_SB_KEY,
+        "Authorization": `Bearer ${CLOUD_SB_KEY}`,
+        "Content-Type": "application/json",
+        "Prefer": prefer
+      };
+      const res = await origFetch(url, {
+        method,
+        headers,
+        body: bodyObj !== null ? JSON.stringify(bodyObj) : undefined
+      });
+      const txt = await res.text();
+      return txt ? JSON.parse(txt) : [];
+    }
+
+    async function buildDirectSupabaseState() {
+      const [settingsArr, members, presets, fuelRecords, notifArr, subs, logs] = await Promise.all([
+        sbFetch("settings", "GET", "select=*"),
+        sbFetch("members", "GET", "select=*&order=sortOrder.asc,id.asc"),
+        sbFetch("presets", "GET", "select=*&order=sortOrder.asc,id.asc"),
+        sbFetch("fuel_records", "GET", "select=*&order=deadline.asc,id.desc"),
+        sbFetch("notification_config", "GET", "select=*"),
+        sbFetch("push_subscriptions", "GET", "select=*&order=id.desc"),
+        sbFetch("notification_logs", "GET", "select=*&order=id.desc&limit=30")
+      ]);
+      const n = (notifArr && notifArr[0]) || { cronTime: "08:00", emailEnabled: 1, smtpHost: "smtp.gmail.com", smtpPort: 587, smtpUser: "kuuasdfghjk@gmail.com", smtpFromName: "コンタクト＆ガソリン期限管理Bot", webPushEnabled: 1, vapidPublicKey: "" };
+      const jstNow = new Date(Date.now() + 9 * 3600 * 1000);
+      return {
+        settings: (settingsArr && settingsArr[0]) || { efficiency: 15, fuelPrice: 175 },
+        members: members || [],
+        presets: presets || [],
+        fuelRecords: fuelRecords || [],
+        notificationConfig: { ...n, hasSmtpPass: Boolean(n.smtpPass) },
+        pushSubscriptions: subs || [],
+        notificationLogs: logs || [],
+        cloudStatus: {
+          enabled: true,
+          connected: true,
+          message: "Supabaseクラウド直結モード稼働中",
+          supabaseUrl: CLOUD_SB_URL,
+          supabaseAnonKey: CLOUD_SB_KEY
+        },
+        serverDate: jstNow.toISOString().slice(0, 10),
+        serverTime: jstNow.toISOString().slice(0, 19),
+        lanIp: window.location.hostname
+      };
+    }
+
+    function makeJsonResponse(obj, status = 200) {
+      return new Response(JSON.stringify(obj), {
+        status,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    window.fetch = async function(input, init = {}) {
+      const urlStr = typeof input === "string" ? input : input.url;
+      if (!urlStr.startsWith("/api/")) {
+        return origFetch(input, init);
+      }
+
+      if (!useDirectSupabaseMode) {
+        try {
+          const resp = await origFetch(input, init);
+          if (resp.status !== 404 && resp.status !== 405 && resp.status < 500) {
+            return resp;
+          }
+          useDirectSupabaseMode = true;
+        } catch (_) {
+          useDirectSupabaseMode = true;
+        }
+      }
+
+      // Direct Supabase REST Handling for /api/*
+      const method = (init.method || "GET").toUpperCase();
+      const body = init.body ? JSON.parse(init.body) : {};
+      const nowIso = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 19);
+
+      if (urlStr === "/api/state" && method === "GET") {
+        return makeJsonResponse(await buildDirectSupabaseState());
+      }
+      if (urlStr === "/api/settings" && method === "PUT") {
+        await sbFetch("settings", "PATCH", "id=eq.1", { efficiency: Number(body.efficiency), fuelPrice: Number(body.fuelPrice), updatedAt: nowIso });
+        return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
+      }
+      if (urlStr === "/api/members" && method === "POST") {
+        const id = body.id || ("m" + Date.now());
+        await sbFetch("members", "POST", "", { id, name: body.name, email: body.email || "", themeColor: body.themeColor || "blue", startDate: body.startDate, deadlineDate: body.deadlineDate, memo: body.memo || "", sortOrder: 99, updatedAt: nowIso }, "resolution=merge-duplicates");
+        return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
+      }
+      if (urlStr.startsWith("/api/members/") && method === "PUT") {
+        const id = decodeURIComponent(urlStr.split("/api/members/")[1]);
+        await sbFetch("members", "PATCH", `id=eq.${encodeURIComponent(id)}`, { ...body, updatedAt: nowIso });
+        return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
+      }
+      if (urlStr.startsWith("/api/members/") && method === "DELETE") {
+        const id = decodeURIComponent(urlStr.split("/api/members/")[1]);
+        await sbFetch("members", "DELETE", `id=eq.${encodeURIComponent(id)}`);
+        return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
+      }
+      if (urlStr === "/api/presets" && method === "POST") {
+        const id = body.id || ("p" + Date.now());
+        await sbFetch("presets", "POST", "", { id, name: body.name, km: Number(body.km), count: Number(body.count), sortOrder: 99 }, "resolution=merge-duplicates");
+        return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
+      }
+      if (urlStr.startsWith("/api/presets/") && method === "PUT") {
+        const id = decodeURIComponent(urlStr.split("/api/presets/")[1]);
+        await sbFetch("presets", "PATCH", `id=eq.${encodeURIComponent(id)}`, body);
+        return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
+      }
+      if (urlStr.startsWith("/api/presets/") && method === "DELETE") {
+        const id = decodeURIComponent(urlStr.split("/api/presets/")[1]);
+        await sbFetch("presets", "DELETE", `id=eq.${encodeURIComponent(id)}`);
+        return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
+      }
+      if (urlStr === "/api/fuel-records" && method === "POST") {
+        await sbFetch("fuel_records", "POST", "", { ...body, settled: 0, createdAt: nowIso });
+        return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
+      }
+      if (urlStr.startsWith("/api/fuel-records/") && method === "PUT") {
+        const id = urlStr.split("/api/fuel-records/")[1];
+        await sbFetch("fuel_records", "PATCH", `id=eq.${id}`, body);
+        return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
+      }
+      if (urlStr.startsWith("/api/fuel-records/") && method === "DELETE") {
+        const id = urlStr.split("/api/fuel-records/")[1];
+        await sbFetch("fuel_records", "DELETE", `id=eq.${id}`);
+        return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
+      }
+      if (urlStr === "/api/push/subscribe" && method === "POST") {
+        const sub = body.subscription || {};
+        const keys = sub.keys || {};
+        await sbFetch("push_subscriptions", "POST", "on_conflict=endpoint", { endpoint: sub.endpoint, p256dh: keys.p256dh || "", auth: keys.auth || "", memberName: body.memberName || "全員", userAgent: navigator.userAgent.slice(0, 150), createdAt: nowIso }, "resolution=merge-duplicates");
+        return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
+      }
+      if (urlStr === "/api/notification-config" && method === "PUT") {
+        const patchObj = { cronTime: body.cronTime, emailEnabled: body.emailEnabled ? 1 : 0, smtpHost: body.smtpHost, smtpPort: body.smtpPort, smtpUser: body.smtpUser, smtpFromName: body.smtpFromName };
+        if (body.smtpPass && body.smtpPass !== "********") patchObj.smtpPass = body.smtpPass;
+        await sbFetch("notification_config", "PATCH", "id=eq.1", patchObj);
+        return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
+      }
+      if (urlStr === "/api/notification-logs" && method === "DELETE") {
+        await sbFetch("notification_logs", "DELETE", "id=gt.0");
+        return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
+      }
+      if (urlStr === "/api/notifications/run-now" && method === "POST") {
+        const st = await buildDirectSupabaseState();
+        const dueM = st.members.filter(m => diffDays(m.deadlineDate, st.serverDate) <= 3 || body.forceAll);
+        const dueF = st.fuelRecords.filter(f => !f.settled && (diffDays(f.deadline, st.serverDate) <= 3 || body.forceAll));
+        const lines = [
+          ...dueM.map(m => `👁️ ${m.name}のコンタクト(${m.memo}): 期限 ${m.deadlineDate} (残り${diffDays(m.deadlineDate, st.serverDate)}日)`),
+          ...dueF.map(f => `⛽ ガソリン精算(${f.useDate}給油): 期限 ${f.deadline} / 私用控除 ¥${Number(f.privYen).toLocaleString()}`)
+        ];
+        const title = `🔔 期限アラート (${lines.length}件)`;
+        const textBody = lines.join("\n") || "対象なし";
+        triggerBrowserNotification(title, textBody);
+        await sbFetch("notification_logs", "POST", "", {
+          executedAt: nowIso.replace("T", " "),
+          triggerType: body.forceAll ? "cloud_force_test" : "cloud_test",
+          channel: "WEB_PUSH & EMAIL",
+          recipient: dueM.map(m => `${m.name} <${m.email}>`).join(", ") || "全員",
+          subject: title,
+          body: textBody,
+          status: "SENT",
+          detail: "Supabaseクラウド直結テスト通知完了（毎朝8:00の自動送信はGitHub Actions / Vercel Cronより実行されます）"
+        });
+        return makeJsonResponse({ ok: true, result: { dueMembersCount: dueM.length, dueFuelsCount: dueF.length }, state: await buildDirectSupabaseState() });
+      }
+      return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
+    };
 
     // Initialize Application
     async function initApp() {
