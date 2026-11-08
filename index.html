@@ -2863,6 +2863,17 @@
         return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
       }
       if (urlStr === "/api/notifications/run-now" && method === "POST") {
+        let edgeRes = { dueMembersCount: 0, dueFuelsCount: 0 };
+        try {
+          const r = await origFetch(`${CLOUD_SB_URL}/functions/v1/notify`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${CLOUD_SB_KEY}` },
+            body: JSON.stringify({ forceAll: Boolean(body.forceAll), triggerType: body.forceAll ? "cloud_force_all" : "cloud_manual_test" })
+          });
+          if (r.ok) edgeRes = await r.json();
+        } catch (err) {
+          console.warn("Edge function notify error:", err);
+        }
         const st = await buildDirectSupabaseState();
         const dueM = st.members.filter(m => diffDays(m.deadlineDate, st.serverDate) <= 3 || body.forceAll);
         const dueF = st.fuelRecords.filter(f => !f.settled && (diffDays(f.deadline, st.serverDate) <= 3 || body.forceAll));
@@ -2870,20 +2881,10 @@
           ...dueM.map(m => `👁️ ${m.name}のコンタクト(${m.memo}): 期限 ${m.deadlineDate} (残り${diffDays(m.deadlineDate, st.serverDate)}日)`),
           ...dueF.map(f => `⛽ ガソリン精算(${f.useDate}給油): 期限 ${f.deadline} / 私用控除 ¥${Number(f.privYen).toLocaleString()}`)
         ];
-        const title = `🔔 期限アラート (${lines.length}件)`;
-        const textBody = lines.join("\n") || "対象なし";
-        triggerBrowserNotification(title, textBody);
-        await sbFetch("notification_logs", "POST", "", {
-          executedAt: nowIso.replace("T", " "),
-          triggerType: body.forceAll ? "cloud_force_test" : "cloud_test",
-          channel: "WEB_PUSH & EMAIL",
-          recipient: dueM.map(m => `${m.name} <${m.email}>`).join(", ") || "全員",
-          subject: title,
-          body: textBody,
-          status: "SENT",
-          detail: "Supabaseクラウド直結テスト通知完了（毎朝8:00の自動送信はGitHub Actions / Vercel Cronより実行されます）"
-        });
-        return makeJsonResponse({ ok: true, result: { dueMembersCount: dueM.length, dueFuelsCount: dueF.length }, state: await buildDirectSupabaseState() });
+        if (lines.length > 0) {
+          triggerBrowserNotification(`🔔 期限アラート (${lines.length}件)`, lines.join("\n"));
+        }
+        return makeJsonResponse({ ok: true, result: { dueMembersCount: dueM.length, dueFuelsCount: dueF.length, ...edgeRes }, state: st });
       }
       return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
     };
