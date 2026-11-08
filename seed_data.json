@@ -1,0 +1,60 @@
+{
+  "settings": {
+    "efficiency": 15,
+    "fuelPrice": 175
+  },
+  "members": [
+    {
+      "id": "m1",
+      "name": "シンジロウ",
+      "email": "kuuasdfghjk@gmail.com",
+      "themeColor": "blue",
+      "startDate": "2026-10-27",
+      "deadlineDate": "2026-11-10",
+      "memo": "アクアロックス (2WEEK)"
+    },
+    {
+      "id": "m2",
+      "name": "ユリ",
+      "email": "yuri.dream1105@gmail.com",
+      "themeColor": "pink",
+      "startDate": "2026-11-03",
+      "deadlineDate": "2026-11-17",
+      "memo": "アクアロックス　(2WEEK)"
+    }
+  ],
+  "presets": [
+    {
+      "id": "p1",
+      "name": "🏢 オフィス通勤（往復）",
+      "km": 24,
+      "count": 4
+    },
+    {
+      "id": "p2",
+      "name": "🚗 主要取引先A社（往復）",
+      "km": 45,
+      "count": 1
+    },
+    {
+      "id": "p3",
+      "name": "🏬 B支店・倉庫巡回（往復）",
+      "km": 60,
+      "count": 1
+    }
+  ],
+  "fuelRecords": [
+    {
+      "id": 101,
+      "useDate": "2026-11-04",
+      "deadline": "2026-11-10",
+      "mode": "③ 満タン後曜日按分",
+      "memo": "先週末給油分（土日ドライブ2日分を除外）",
+      "bizKm": 180,
+      "bizLiters": 12,
+      "bizYen": 2100,
+      "privLiters": 4.8,
+      "privYen": 840
+    }
+  ]
+}

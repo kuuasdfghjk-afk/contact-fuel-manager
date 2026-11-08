@@ -1,0 +1,2723 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>2WEEKコンタクト＆社用ガソリンカード期限管理</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <meta name="theme-color" content="#1e3a8a" />
+  <style>
+    :root {
+      --bg-main: #f1f5f9;
+      --bg-card: #ffffff;
+      --text-main: #0f172a;
+      --text-sub: #475569;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #eff6ff;
+      --pink: #db2777;
+      --pink-light: #fdf2f8;
+      --emerald: #059669;
+      --emerald-light: #ecfdf5;
+      --amber: #d97706;
+      --amber-light: #fffbeb;
+      --purple: #7c3aed;
+      --purple-light: #f5f3ff;
+      --cyan: #0891b2;
+      --cyan-light: #ecfeff;
+      --danger: #dc2626;
+      --danger-light: #fef2f2;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding-bottom: 60px;
+    }
+
+    /* Top App Header */
+    .app-header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #0f766e 100%);
+      color: #ffffff;
+      padding: 18px 20px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.2);
+    }
+
+    .header-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      flex-shrink: 0;
+    }
+
+    .brand-title h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-title p {
+      font-size: 0.76rem;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(16, 185, 129, 0.22);
+      border: 1px solid rgba(52, 211, 153, 0.5);
+      color: #a7f3d0;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .sync-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #34d399;
+      box-shadow: 0 0 6px #34d399;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-header {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 7px 12px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-header:hover {
+      background: rgba(255, 255, 255, 0.24);
+    }
+
+    .btn-header.active-push {
+      background: rgba(16, 185, 129, 0.28);
+      border-color: #34d399;
+      color: #d1fae5;
+    }
+
+    .btn-header.alert-trigger {
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      border-color: #fbbf24;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+    }
+
+    /* Alert Summary Banner */
+    .urgent-banner {
+      max-width: 1180px;
+      margin: 16px auto 0;
+      padding: 0 16px;
+    }
+
+    .urgent-box {
+      background: linear-gradient(90deg, #fef2f2 0%, #fffbeb 100%);
+      border: 1px solid #fca5a5;
+      border-left: 5px solid #dc2626;
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .urgent-box-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .urgent-icon {
+      font-size: 1.35rem;
+      line-height: 1;
+      margin-top: 2px;
+    }
+
+    .urgent-text h3 {
+      font-size: 0.9rem;
+      color: #991b1b;
+      font-weight: 800;
+    }
+
+    .urgent-text ul {
+      margin-top: 4px;
+      padding-left: 18px;
+      font-size: 0.82rem;
+      color: #7f1d1d;
+    }
+
+    /* Navigation Tabs */
+    .nav-tabs-wrap {
+      max-width: 1180px;
+      margin: 16px auto 0;
+      padding: 0 16px;
+    }
+
+    .nav-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      background: #e2e8f0;
+      padding: 5px;
+      border-radius: 14px;
+    }
+
+    .nav-tab {
+      border: none;
+      background: transparent;
+      color: var(--text-sub);
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .nav-tab.active {
+      background: #ffffff;
+      color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tab-badge {
+      background: #ef4444;
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 1px 6px;
+      border-radius: 999px;
+      font-weight: 800;
+    }
+
+    /* Main Content Layout */
+    .main-container {
+      max-width: 1180px;
+      margin: 18px auto 0;
+      padding: 0 16px;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 920px) {
+      .section-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .panel-subtitle {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Buttons */
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-emerald {
+      background: var(--emerald);
+      color: #ffffff;
+    }
+    .btn-emerald:hover {
+      background: #047857;
+    }
+
+    .btn-amber {
+      background: var(--amber);
+      color: #ffffff;
+    }
+    .btn-amber:hover {
+      background: #b45309;
+    }
+
+    .btn-outline {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: var(--text-main);
+    }
+    .btn-outline:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+    }
+
+    .btn-danger-ghost {
+      background: #fff;
+      border-color: #fecaca;
+      color: var(--danger);
+    }
+    .btn-danger-ghost:hover {
+      background: var(--danger-light);
+    }
+
+    .btn-line {
+      background: #06c755;
+      color: #ffffff;
+    }
+    .btn-line:hover {
+      background: #05b04a;
+    }
+
+    .btn-gcal {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+      color: #1d4ed8;
+    }
+    .btn-gcal:hover {
+      background: #dbeafe;
+    }
+
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 0.76rem;
+      border-radius: 8px;
+    }
+
+    /* Contact Lens Member Cards */
+    .member-cards-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .member-card {
+      border-radius: 14px;
+      border: 2px solid var(--border);
+      padding: 16px;
+      position: relative;
+      transition: all 0.2s ease;
+      background: #ffffff;
+    }
+
+    .member-card.theme-blue {
+      border-color: #93c5fd;
+      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 42%);
+    }
+    .member-card.theme-pink {
+      border-color: #f9a8d4;
+      background: linear-gradient(180deg, #fdf2f8 0%, #ffffff 42%);
+    }
+    .member-card.theme-emerald {
+      border-color: #6ee7b7;
+      background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 42%);
+    }
+    .member-card.theme-amber {
+      border-color: #fcd34d;
+      background: linear-gradient(180deg, #fffbeb 0%, #ffffff 42%);
+    }
+    .member-card.theme-purple {
+      border-color: #c4b5fd;
+      background: linear-gradient(180deg, #f5f3ff 0%, #ffffff 42%);
+    }
+    .member-card.theme-cyan {
+      border-color: #67e8f9;
+      background: linear-gradient(180deg, #ecfeff 0%, #ffffff 42%);
+    }
+
+    .member-card.is-urgent {
+      box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.25);
+    }
+
+    .member-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .member-identity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .member-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: #ffffff;
+      flex-shrink: 0;
+    }
+
+    .theme-blue .member-avatar { background: #2563eb; }
+    .theme-pink .member-avatar { background: #db2777; }
+    .theme-emerald .member-avatar { background: #059669; }
+    .theme-amber .member-avatar { background: #d97706; }
+    .theme-purple .member-avatar { background: #7c3aed; }
+    .theme-cyan .member-avatar { background: #0891b2; }
+
+    .member-name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .member-name {
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .member-memo {
+      font-size: 0.78rem;
+      background: rgba(15, 23, 42, 0.06);
+      padding: 2px 8px;
+      border-radius: 6px;
+      color: var(--text-sub);
+      font-weight: 600;
+    }
+
+    .member-email {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .deadline-status-pill {
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .status-safe {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-warning {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #f59e0b;
+    }
+
+    .status-danger {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #ef4444;
+      animation: pulse-alert 2s infinite;
+    }
+
+    @keyframes pulse-alert {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+
+    /* Gauge Bar */
+    .gauge-section {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+
+    .gauge-dates {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+    }
+
+    .gauge-track {
+      width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .gauge-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    .member-controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .date-quick-edit {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--text-sub);
+    }
+
+    .date-quick-edit input[type="date"] {
+      padding: 4px 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-family: inherit;
+    }
+
+    .share-actions-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #e2e8f0;
+    }
+
+    /* Fuel Section Styles */
+    .fuel-params-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+
+    .param-item label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+    }
+
+    .param-input-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .param-input-group input {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .param-unit {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    /* Mode Selector Tabs */
+    .mode-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .mode-tab-btn {
+      padding: 10px 8px;
+      border: 2px solid #e2e8f0;
+      background: #f8fafc;
+      border-radius: 10px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--text-sub);
+      cursor: pointer;
+      text-align: center;
+      line-height: 1.3;
+      transition: all 0.15s ease;
+    }
+
+    .mode-tab-btn.active {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+
+    /* Preset Route List (Mode 1) */
+    .preset-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .preset-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+    }
+
+    .preset-info {
+      flex: 1;
+    }
+
+    .preset-name {
+      font-weight: 700;
+      font-size: 0.88rem;
+    }
+
+    .preset-km {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .counter-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-counter {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-counter:hover {
+      background: #eff6ff;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .counter-val {
+      min-width: 36px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 0.95rem;
+    }
+
+    /* Calculation Result Box */
+    .calc-result-card {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 12px;
+      margin-bottom: 14px;
+    }
+
+    .calc-result-header {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .calc-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .metric-box {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .metric-box.priv-box {
+      background: rgba(239, 68, 68, 0.16);
+      border-color: rgba(248, 113, 113, 0.4);
+    }
+
+    .metric-label {
+      font-size: 0.74rem;
+      color: #cbd5e1;
+    }
+
+    .metric-value {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-top: 2px;
+    }
+
+    .metric-box.priv-box .metric-value {
+      color: #fca5a5;
+    }
+
+    .metric-sub {
+      font-size: 0.74rem;
+      color: #94a3b8;
+    }
+
+    /* Slider Box for Mode 3 */
+    .slider-container {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .ratio-bar {
+      height: 16px;
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+      margin: 10px 0;
+      background: #fee2e2;
+    }
+
+    .ratio-biz {
+      background: #2563eb;
+      height: 100%;
+      transition: width 0.2s ease;
+    }
+
+    .ratio-priv {
+      background: #ef4444;
+      height: 100%;
+      transition: width 0.2s ease;
+    }
+
+    /* Fuel Records List */
+    .fuel-records-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .fuel-record-card {
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--primary);
+      border-radius: 12px;
+      padding: 14px;
+      background: #ffffff;
+    }
+
+    .fuel-record-card.is-urgent {
+      border-left-color: var(--danger);
+      background: #fffafa;
+    }
+
+    .fuel-record-card.is-settled {
+      border-left-color: #94a3b8;
+      opacity: 0.72;
+      background: #f8fafc;
+    }
+
+    .record-split-pills {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .split-pill {
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+    }
+
+    .split-biz {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+    }
+
+    .split-priv {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+    }
+
+    /* Form Controls */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-group label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--text-sub);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 0.86rem;
+      font-family: inherit;
+    }
+
+    /* Notification Log Table / Cards */
+    .log-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 520px;
+      overflow-y: auto;
+    }
+
+    .log-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #f8fafc;
+      font-size: 0.8rem;
+    }
+
+    .log-item pre {
+      margin-top: 8px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      padding: 8px 10px;
+      border-radius: 6px;
+      white-space: pre-wrap;
+      font-family: inherit;
+      font-size: 0.78rem;
+      color: var(--text-main);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      padding: 16px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      border-radius: 16px;
+      max-width: 480px;
+      width: 100%;
+      padding: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 400;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      box-shadow: var(--shadow-md);
+      border-left: 4px solid #38bdf8;
+      animation: fade-in 0.2s ease;
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-row">
+        <img src="/icon.svg" alt="App Icon" class="brand-icon" />
+        <div class="brand-title">
+          <h1>2WEEKコンタクト＆社用ガソリン期限管理</h1>
+          <p>
+            <span class="sync-badge" id="syncBadge">
+              <span class="sync-dot"></span>
+              <span id="syncStatusText">リアルタイム同期中</span>
+            </span>
+            <span id="lanShareInfo"></span>
+          </p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn-header" id="btnEnableWebPush" onclick="subscribeWebPush()">
+          🔔 Web Push通知を有効化
+        </button>
+        <button class="btn-header alert-trigger" onclick="runCronTestNow(false)">
+          ⚡ 朝8:00通知を今すぐテスト送信
+        </button>
+        <button class="btn-header" onclick="switchView('notifications')">
+          ⚙️ 通知設定・履歴
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Urgent Alert Banner (3日前〜超過の項目がある場合に自動表示) -->
+  <div class="urgent-banner" id="urgentBannerWrap"></div>
+
+  <!-- View Switcher Tabs -->
+  <div class="nav-tabs-wrap">
+    <div class="nav-tabs">
+      <button class="nav-tab active" id="tabBtnAll" onclick="switchView('all')">
+        📊 統合ダッシュボード（両方表示）
+      </button>
+      <button class="nav-tab" id="tabBtnContacts" onclick="switchView('contacts')">
+        👁️ 2WEEKコンタクト管理 <span class="tab-badge hidden" id="badgeContacts">0</span>
+      </button>
+      <button class="nav-tab" id="tabBtnNotifications" onclick="switchView('notifications')">
+        🔔 自動通知 (メール / Web Push) 設定
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="main-container">
+    <div class="section-grid" id="mainDashboardGrid">
+
+      <!-- LEFT COLUMN: 1. 名前登録式の2WEEKコンタクト期限管理 -->
+      <section class="panel-card" id="sectionContacts">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">👁️ 2WEEKコンタクト交換期限管理</div>
+            <div class="panel-subtitle">任意のメンバー名で複数人登録・開封日から14日後の交換期限を自動計算＆リアルタイム同期</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openMemberModal()">
+            ＋ メンバー追加
+          </button>
+        </div>
+
+        <div class="member-cards-list" id="memberCardsContainer">
+          <!-- Dynamically rendered member cards -->
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: 2. 距離メモ不要（Zero-Tracking）の社用ガソリンカード私用分除外＆精算期限管理 -->
+      <section class="panel-card" id="sectionFuel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">⛽ 社用ガソリンカード 私用分除外＆精算期限管理</div>
+            <div class="panel-subtitle">距離メモ不要（Zero-Tracking）・3つのモードで業務上限と私用控除額を即座に算出</div>
+          </div>
+        </div>
+
+        <!-- Global Fuel Parameters (Efficiency & Fuel Price) -->
+        <div class="fuel-params-bar">
+          <div class="param-item">
+            <label for="inputEfficiency">🚗 車両燃費（全モード共通）</label>
+            <div class="param-input-group">
+              <input type="number" id="inputEfficiency" step="0.5" min="1" value="15" onchange="saveFuelSettings()" />
+              <span class="param-unit">km / L</span>
+            </div>
+          </div>
+          <div class="param-item">
+            <label for="inputFuelPrice">⛽ ガソリン単価（全モード共通）</label>
+            <div class="param-input-group">
+              <input type="number" id="inputFuelPrice" step="1" min="50" value="175" onchange="saveFuelSettings()" />
+              <span class="param-unit">円 / L</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 Calculation Modes Selector -->
+        <div class="mode-tabs">
+          <button class="mode-tab-btn active" id="modeTab1" onclick="selectFuelMode(1)">
+            ① 固定ルート合算<br /><span style="font-weight:500;font-size:0.7rem;">往復km×回数タップ</span>
+          </button>
+          <button class="mode-tab-btn" id="modeTab2" onclick="selectFuelMode(2)">
+            ② 定量・定額ストップ<br /><span style="font-weight:500;font-size:0.7rem;">スタンド現場計算</span>
+          </button>
+          <button class="mode-tab-btn" id="modeTab3" onclick="selectFuelMode(3)">
+            ③ 満タン後 曜日按分<br /><span style="font-weight:500;font-size:0.7rem;">業務vs休日スライダー</span>
+          </button>
+        </div>
+
+        <!-- MODE 1: 固定ルート（往復km）の回数タップ合算 -->
+        <div id="fuelModePanel1">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:0.8rem;font-weight:700;color:var(--text-sub);">固定ルートをタップして今週・今月の業務走行回数を合算</span>
+            <button class="btn btn-outline btn-sm" onclick="openPresetModal()">＋ ルート追加</button>
+          </div>
+
+          <div class="preset-list" id="presetListContainer">
+            <!-- Rendered from state.presets -->
+          </div>
+
+          <div class="form-grid" style="margin-top:10px;">
+            <div class="form-group">
+              <label>（任意）実際の総給油量 (L) を入力すると私用超過分を自動控除</label>
+              <input type="number" id="mode1ActualLiters" step="0.1" min="0" placeholder="未入力なら業務上限のみ算出" oninput="recalcFuelMode1()" />
+            </div>
+            <div class="form-group">
+              <label>または実際の総給油額 (円)</label>
+              <input type="number" id="mode1ActualYen" step="10" min="0" placeholder="自動換算" oninput="recalcFuelMode1FromYen()" />
+            </div>
+          </div>
+        </div>
+
+        <!-- MODE 2: ガソリンスタンド現場での「定量・定額ストップ給油」計算 -->
+        <div id="fuelModePanel2" class="hidden">
+          <div class="slider-container">
+            <p style="font-size:0.8rem;color:var(--text-sub);margin-bottom:10px;">
+              <strong>ガソリンスタンドの給油機の前で即決！</strong><br />
+              業務稼働日数 × 1日平均業務距離 ÷ 燃費 から、社用カードで入れてよい「定量ストップ(L) / 定額ストップ(円)」を算出します。
+            </p>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>📅 業務稼働日数（日）</label>
+                <input type="number" id="mode2BizDays" value="5" min="1" max="31" oninput="recalcFuelMode2()" />
+              </div>
+              <div class="form-group">
+                <label>🛣️ 1日あたり平均業務距離（km/日）</label>
+                <input type="number" id="mode2AvgKm" value="36" step="1" min="1" oninput="recalcFuelMode2()" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODE 3: 満タン給油後の「業務日数 vs 休日私用日数」スライダー按分 -->
+        <div id="fuelModePanel3" class="hidden">
+          <div class="slider-container">
+            <p style="font-size:0.8rem;color:var(--text-sub);margin-bottom:10px;">
+              <strong>社用カードで満タン給油した後の事後精算に！</strong><br />
+              給油量（または金額）と「業務日数 vs 休日私用日数」スライダーで私用自己負担額を自動按分します。
+            </p>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>⛽ 満タン給油量（L）</label>
+                <input type="number" id="mode3TotalLiters" value="16.8" step="0.1" min="0.1" oninput="recalcFuelMode3('liters')" />
+              </div>
+              <div class="form-group">
+                <label>💴 給油総額（円）</label>
+                <input type="number" id="mode3TotalYen" value="2940" step="10" min="1" oninput="recalcFuelMode3('yen')" />
+              </div>
+            </div>
+
+            <div style="margin-top:12px;">
+              <div style="display:flex;justify-content:space-between;font-size:0.82rem;font-weight:800;">
+                <span style="color:var(--primary);">🏢 業務稼働: <span id="lblMode3BizDays">5</span> 日 (<span id="lblMode3BizPct">71</span>%)</span>
+                <span style="color:var(--danger);">🏠 休日私用: <span id="lblMode3PrivDays">2</span> 日 (<span id="lblMode3PrivPct">29</span>%)</span>
+              </div>
+              <div class="ratio-bar">
+                <div class="ratio-biz" id="barMode3Biz" style="width:71.4%;"></div>
+                <div class="ratio-priv" id="barMode3Priv" style="width:28.6%;"></div>
+              </div>
+
+              <div class="form-grid" style="margin-top:8px;">
+                <div class="form-group">
+                  <label>🏢 業務日数を調整: <span id="sliderBizVal">5</span>日</label>
+                  <input type="range" id="sliderMode3BizDays" min="1" max="14" value="5" oninput="recalcFuelMode3('slider')" />
+                </div>
+                <div class="form-group">
+                  <label>🏠 休日私用日数を調整: <span id="sliderPrivVal">2</span>日</label>
+                  <input type="range" id="sliderMode3PrivDays" min="0" max="14" value="2" oninput="recalcFuelMode3('slider')" />
+                </div>
+              </div>
+
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
+                <button type="button" class="btn btn-outline btn-sm" onclick="setMode3Preset(5, 2)">平日5日 : 土日2日</button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="setMode3Preset(5, 1)">平日5日 : 私用1日</button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="setMode3Preset(4, 3)">業務4日 : 連休3日</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Unified Live Calculation Result Display -->
+        <div class="calc-result-card">
+          <div class="calc-result-header">
+            <span id="calcResultModeTitle">① 固定ルート合算による業務給油上限</span>
+            <span id="calcResultFormulaHint">燃費 15km/L・単価 175円/L</span>
+          </div>
+          <div class="calc-metrics-grid">
+            <div class="metric-box">
+              <div class="metric-label">🏢 業務経費計上上限（社用分）</div>
+              <div class="metric-value" id="resBizMain">13.4 L / ¥2,345</div>
+              <div class="metric-sub" id="resBizSub">業務走行距離: 201.0 km</div>
+            </div>
+            <div class="metric-box priv-box">
+              <div class="metric-label">🏠 私用分除外（自己負担精算額）</div>
+              <div class="metric-value" id="resPrivMain">0.0 L / ¥0</div>
+              <div class="metric-sub" id="resPrivSub">経理精算時に控除・返金する金額</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Save to Fuel Settlement Deadline Records Form -->
+        <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:14px;">
+          <div style="font-size:0.84rem;font-weight:800;margin-bottom:8px;">
+            📥 この計算結果を「精算期限管理リスト」に登録（3日前に自動通知）
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>給油日 (useDate)</label>
+              <input type="date" id="newFuelUseDate" onchange="autoSetFuelDeadline()" />
+            </div>
+            <div class="form-group">
+              <label>精算期限日 (deadline)</label>
+              <input type="date" id="newFuelDeadline" />
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:10px;">
+            <label>メモ（給油状況・除外理由など）</label>
+            <input type="text" id="newFuelMemo" placeholder="例: 先週末給油分（土日ドライブ2日分を除外）" />
+          </div>
+          <button class="btn btn-primary" style="width:100%;" onclick="saveNewFuelRecord()">
+            💾 ガソリン精算記録を保存してメンバー間で同期
+          </button>
+        </div>
+
+        <!-- Registered Fuel Settlement Records List -->
+        <div style="margin-top:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <h3 style="font-size:0.95rem;font-weight:800;">📋 登録済みガソリン精算期限リスト</h3>
+            <span style="font-size:0.75rem;color:var(--text-muted);" id="fuelRecordsCountLabel"></span>
+          </div>
+          <div class="fuel-records-list" id="fuelRecordsContainer">
+            <!-- Dynamically rendered fuel records -->
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- NOTIFICATIONS & CRON SETTINGS SECTION -->
+    <section class="panel-card hidden" id="sectionNotifications">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">🔔 毎朝8:00 自動プッシュ通知（メール ＆ Web Push）設定・実行履歴</div>
+          <div class="panel-subtitle">交換期限3日前〜超過のコンタクト、および精算期限3日前〜超過のガソリン記録を毎朝自動通知します</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-amber btn-sm" onclick="runCronTestNow(false)">
+            ⚡ 期限3日前以内の対象に今すぐ通知テスト
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="runCronTestNow(true)">
+            📢 全メンバー・全記録を強制テスト通知
+          </button>
+        </div>
+      </div>
+
+      <div class="section-grid">
+        <!-- Left: Configuration Form -->
+        <div>
+          <div style="background:#ecfdf5;border:1px solid #6ee7b7;border-radius:12px;padding:14px;margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+              <h4 style="font-size:0.9rem;color:#065f46;">☁️ 0. Supabase クラウドDB接続（Mac電源OFF・24時間同期）</h4>
+              <span id="cloudStatusBadge" style="font-size:0.74rem;font-weight:800;padding:2px 8px;border-radius:999px;background:#fef3c7;color:#92400e;">未設定</span>
+            </div>
+            <p style="font-size:0.78rem;color:#047857;margin-bottom:10px;">
+              SupabaseのURLとAnon Keyを登録（またはVercel環境変数に設定）すると、クラウドPostgreSQLへ全データがリアルタイム同期されます。
+            </p>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>SUPABASE_URL (Project URL)</label>
+                <input type="url" id="cfgSupabaseUrl" placeholder="https://xxxx.supabase.co" />
+              </div>
+              <div class="form-group">
+                <label>SUPABASE_ANON_KEY (API Key)</label>
+                <input type="password" id="cfgSupabaseKey" placeholder="eyJhbGciOiJIUzI1NiIs..." />
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:6px;">
+              <button class="btn btn-emerald btn-sm" onclick="saveSupabaseCloudConfig()">
+                ☁️ Supabase接続を保存＆データ同期
+              </button>
+              <span id="cloudStatusDetail" style="font-size:0.74rem;color:#065f46;"></span>
+            </div>
+          </div>
+
+          <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px;margin-bottom:16px;">
+            <h4 style="font-size:0.9rem;color:#1e40af;margin-bottom:6px;">📲 1. Web Push 通知（完全無料・外部アカウント不要）</h4>
+            <p style="font-size:0.8rem;color:#1e3a8a;margin-bottom:10px;">
+              ブラウザ・スマホ（ホーム画面に追加したPWA含む）へ直接プッシュ通知を届けます。VAPID暗号鍵はサーバー内で自動生成済みです。
+            </p>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <select id="pushSubscribeMemberSelect" style="padding:7px 10px;border-radius:8px;border:1px solid #93c5fd;font-weight:700;">
+                <option value="全員">対象: 全員</option>
+                <option value="シンジロウ">シンジロウの端末</option>
+                <option value="ユリ">ユリの端末</option>
+              </select>
+              <button class="btn btn-primary btn-sm" onclick="subscribeWebPush()">
+                🔔 この端末でWeb Push通知を有効化・購読登録
+              </button>
+            </div>
+            <div id="pushSubscriptionsSummary" style="font-size:0.76rem;color:#1e40af;margin-top:8px;"></div>
+          </div>
+
+          <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:14px;">
+            <h4 style="font-size:0.9rem;margin-bottom:10px;">✉️ 2. メール自動通知（Gmail SMTP 等）＆ Cron時刻設定</h4>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>⏰ 毎日の自動実行時刻 (Cron)</label>
+                <input type="time" id="cfgCronTime" value="08:00" />
+              </div>
+              <div class="form-group">
+                <label>📧 メール通知の有効化</label>
+                <select id="cfgEmailEnabled">
+                  <option value="1">有効（対象メンバーへ自動送信）</option>
+                  <option value="0">無効</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>SMTPサーバー</label>
+                <input type="text" id="cfgSmtpHost" value="smtp.gmail.com" />
+              </div>
+              <div class="form-group">
+                <label>SMTPポート (STARTTLS: 587)</label>
+                <input type="number" id="cfgSmtpPort" value="587" />
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>送信元メールアドレス (Gmail等)</label>
+                <input type="email" id="cfgSmtpUser" placeholder="kuuasdfghjk@gmail.com" />
+              </div>
+              <div class="form-group">
+                <label>Googleアプリパスワード (16桁)</label>
+                <input type="password" id="cfgSmtpPass" placeholder="未設定時は右側にメール文面プレビューを生成" />
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:12px;">
+              <label>送信者表示名</label>
+              <input type="text" id="cfgSmtpFromName" value="コンタクト＆ガソリン期限管理Bot" />
+            </div>
+
+            <details style="margin-bottom:12px;font-size:0.8rem;color:var(--text-sub);">
+              <summary style="cursor:pointer;font-weight:700;">💬 （オプション）LINE Messaging API 設定を開く</summary>
+              <div style="padding-top:10px;">
+                <div class="form-group" style="margin-bottom:8px;">
+                  <label>LINE通知の有効化</label>
+                  <select id="cfgLineEnabled">
+                    <option value="0">無効（画面のLINE共有ボタンのみ使用）</option>
+                    <option value="1">有効（Messaging APIで自動Push）</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom:8px;">
+                  <label>チャネルアクセストークン（長期）</label>
+                  <input type="password" id="cfgLineToken" placeholder="LINE Developersで発行したトークン" />
+                </div>
+                <div class="form-group">
+                  <label>送信先 User ID / Group ID（空欄時はブロードキャスト）</label>
+                  <input type="text" id="cfgLineTargetId" placeholder="U1234567890..." />
+                </div>
+              </div>
+            </details>
+
+            <div style="display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;">
+              <button class="btn btn-emerald" onclick="saveNotificationConfig()">
+                💾 通知・Cron設定を保存
+              </button>
+              <button class="btn btn-outline btn-sm" onclick="resetToSeedData()">
+                🔄 初期シードデータに復元
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Notification Execution Logs & Email Previews -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <h4 style="font-size:0.92rem;font-weight:800;">📜 通知実行ログ・送信メール文面プレビュー</h4>
+            <button class="btn btn-outline btn-sm" onclick="clearNotificationLogs()">履歴クリア</button>
+          </div>
+          <div class="log-list" id="notificationLogsContainer">
+            <!-- Rendered from state.notificationLogs -->
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Member Add/Edit Modal -->
+  <div class="modal-backdrop" id="memberModal">
+    <div class="modal-card">
+      <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:12px;" id="memberModalTitle">👤 メンバー登録・編集</h3>
+      <input type="hidden" id="modalMemberId" />
+      <div class="form-grid">
+        <div class="form-group">
+          <label>メンバー名（必須）</label>
+          <input type="text" id="modalMemberName" placeholder="例: シンジロウ、ユリ" />
+        </div>
+        <div class="form-group">
+          <label>テーマカラー</label>
+          <select id="modalMemberColor">
+            <option value="blue">🔵 ブルー</option>
+            <option value="pink">🌸 ピンク</option>
+            <option value="emerald">🟢 エメラルド</option>
+            <option value="amber">🟠 アンバー</option>
+            <option value="purple">🟣 パープル</option>
+            <option value="cyan">🩵 シアン</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>通知先メールアドレス</label>
+        <input type="email" id="modalMemberEmail" placeholder="example@gmail.com" />
+      </div>
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>使用レンズ銘柄・メモ</label>
+        <input type="text" id="modalMemberMemo" placeholder="例: アクアロックス (2WEEK)" />
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>開封日 (startDate)</label>
+          <input type="date" id="modalMemberStart" onchange="autoCalcModalMemberDeadline()" />
+        </div>
+        <div class="form-group">
+          <label>交換期限日 (14日後自動計算)</label>
+          <input type="date" id="modalMemberDeadline" />
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;">
+        <button class="btn btn-outline" onclick="closeMemberModal()">キャンセル</button>
+        <button class="btn btn-primary" onclick="submitMemberModal()">保存する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Route Preset Add/Edit Modal -->
+  <div class="modal-backdrop" id="presetModal">
+    <div class="modal-card">
+      <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:12px;" id="presetModalTitle">🛣️ 固定ルート登録・編集</h3>
+      <input type="hidden" id="modalPresetId" />
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>ルート名（アイコン付き推奨）</label>
+        <input type="text" id="modalPresetName" placeholder="例: 🏢 オフィス通勤（往復）" />
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>往復距離 (km)</label>
+          <input type="number" id="modalPresetKm" step="0.5" min="0.5" value="20" />
+        </div>
+        <div class="form-group">
+          <label>初期回数</label>
+          <input type="number" id="modalPresetCount" step="1" min="0" value="1" />
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;">
+        <button class="btn btn-outline" onclick="closePresetModal()">キャンセル</button>
+        <button class="btn btn-primary" onclick="submitPresetModal()">保存する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    // Global Application State
+    let appState = {
+      settings: { efficiency: 15, fuelPrice: 175 },
+      members: [],
+      presets: [],
+      fuelRecords: [],
+      notificationConfig: {},
+      pushSubscriptions: [],
+      notificationLogs: [],
+      serverDate: new Date().toISOString().slice(0, 10),
+      lanIp: "localhost"
+    };
+
+    let currentFuelMode = 1;
+    let currentCalcResult = {
+      modeLabel: "① 固定ルート合算",
+      bizKm: 0,
+      bizLiters: 0,
+      bizYen: 0,
+      privLiters: 0,
+      privYen: 0,
+      defaultMemo: ""
+    };
+
+    let swRegistration = null;
+
+    // Utility: Toast Notification
+    function showToast(msg) {
+      const container = document.getElementById("toastContainer");
+      const el = document.createElement("div");
+      el.className = "toast";
+      el.textContent = msg;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.remove();
+      }, 3600);
+    }
+
+    // Utility: Date Math
+    function addDays(dateStr, days) {
+      const [y, m, d] = dateStr.split("-").map(Number);
+      const dt = new Date(Date.UTC(y, m - 1, d));
+      dt.setUTCDate(dt.getUTCDate() + days);
+      return dt.toISOString().slice(0, 10);
+    }
+
+    function diffDays(targetDateStr, baseDateStr) {
+      const base = baseDateStr || appState.serverDate || new Date().toISOString().slice(0, 10);
+      const [ty, tm, td] = targetDateStr.split("-").map(Number);
+      const [by, bm, bd] = base.split("-").map(Number);
+      const tMs = Date.UTC(ty, tm - 1, td);
+      const bMs = Date.UTC(by, bm - 1, bd);
+      return Math.round((tMs - bMs) / (1000 * 60 * 60 * 24));
+    }
+
+    function formatGoogleCalDate(dateStr) {
+      return dateStr.replace(/-/g, "");
+    }
+
+    function buildGoogleCalendarUrl(title, dateStr, details) {
+      const start = formatGoogleCalDate(dateStr);
+      const nextDay = formatGoogleCalDate(addDays(dateStr, 1));
+      const params = new URLSearchParams({
+        action: "TEMPLATE",
+        text: title,
+        dates: `${start}/${nextDay}`,
+        details: details
+      });
+      return `https://calendar.google.com/calendar/render?${params.toString()}`;
+    }
+
+    // Copy text & optional LINE share
+    async function copyForLineShare(text, openLineApp = false) {
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("📋 LINE共有用テキストをコピーしました！");
+      } catch (_) {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        showToast("📋 LINE共有用テキストをコピーしました！");
+      }
+      if (openLineApp) {
+        window.open(`https://line.me/R/share?text=${encodeURIComponent(text)}`, "_blank");
+      }
+    }
+
+    // View Switching
+    function switchView(viewName) {
+      const grid = document.getElementById("mainDashboardGrid");
+      const secContacts = document.getElementById("sectionContacts");
+      const secFuel = document.getElementById("sectionFuel");
+      const secNotif = document.getElementById("sectionNotifications");
+
+      document.getElementById("tabBtnAll").classList.toggle("active", viewName === "all");
+      document.getElementById("tabBtnContacts").classList.toggle("active", viewName === "contacts");
+      document.getElementById("tabBtnNotifications").classList.toggle("active", viewName === "notifications");
+
+      if (viewName === "all") {
+        grid.classList.remove("hidden");
+        grid.style.gridTemplateColumns = "";
+        secContacts.classList.remove("hidden");
+        secFuel.classList.remove("hidden");
+        secNotif.classList.add("hidden");
+      } else if (viewName === "contacts") {
+        grid.classList.remove("hidden");
+        grid.style.gridTemplateColumns = "1fr";
+        secContacts.classList.remove("hidden");
+        secFuel.classList.add("hidden");
+        secNotif.classList.add("hidden");
+      } else if (viewName === "notifications") {
+        grid.classList.add("hidden");
+        secNotif.classList.remove("hidden");
+      }
+    }
+
+    // Render Entire Application from appState
+    function renderApp() {
+      // LAN Share URL
+      const port = window.location.port || "8080";
+      const lanInfo = document.getElementById("lanShareInfo");
+      if (appState.lanIp && appState.lanIp !== "127.0.0.1") {
+        lanInfo.textContent = `📱 スマホ共有URL: http://${appState.lanIp}:${port}`;
+      }
+
+      // Update Settings Inputs (if not actively focused)
+      const effInput = document.getElementById("inputEfficiency");
+      const priceInput = document.getElementById("inputFuelPrice");
+      if (document.activeElement !== effInput) {
+        effInput.value = appState.settings.efficiency;
+      }
+      if (document.activeElement !== priceInput) {
+        priceInput.value = appState.settings.fuelPrice;
+      }
+
+      renderUrgentBanner();
+      renderMembers();
+      renderPresets();
+      recalcCurrentFuelMode();
+      renderFuelRecords();
+      renderNotificationSection();
+    }
+
+    // Urgent Banner for items <= 3 days
+    function renderUrgentBanner() {
+      const wrap = document.getElementById("urgentBannerWrap");
+      const urgentItems = [];
+      let urgentContactCount = 0;
+
+      for (const m of appState.members) {
+        const rem = diffDays(m.deadlineDate);
+        if (rem <= 3) {
+          urgentContactCount++;
+          const label = rem > 0 ? `交換期限まであと${rem}日 (${m.deadlineDate})` : (rem === 0 ? `本日が交換期限日です！ (${m.deadlineDate})` : `交換期限を${Math.abs(rem)}日超過！ (${m.deadlineDate})`);
+          urgentItems.push(`👁️ <strong>${escapeHtml(m.name)}</strong> のコンタクト（${escapeHtml(m.memo)}）: ${label}`);
+        }
+      }
+
+      for (const f of appState.fuelRecords) {
+        if (f.settled) continue;
+        const rem = diffDays(f.deadline);
+        if (rem <= 3) {
+          const label = rem > 0 ? `精算期限まであと${rem}日 (${f.deadline})` : (rem === 0 ? `本日が精算期限日です！ (${f.deadline})` : `精算期限を${Math.abs(rem)}日超過！ (${f.deadline})`);
+          urgentItems.push(`⛽ <strong>ガソリン精算 (${f.useDate}給油 / ${escapeHtml(f.mode)})</strong>: ${label} — 私用控除 <strong>¥${Number(f.privYen).toLocaleString()}</strong> / 業務経費 ¥${Number(f.bizYen).toLocaleString()}`);
+        }
+      }
+
+      const badgeContacts = document.getElementById("badgeContacts");
+      if (urgentContactCount > 0) {
+        badgeContacts.textContent = urgentContactCount;
+        badgeContacts.classList.remove("hidden");
+      } else {
+        badgeContacts.classList.add("hidden");
+      }
+
+      if (urgentItems.length === 0) {
+        wrap.innerHTML = "";
+        return;
+      }
+
+      wrap.innerHTML = `
+        <div class="urgent-box">
+          <div class="urgent-box-left">
+            <div class="urgent-icon">🚨</div>
+            <div class="urgent-text">
+              <h3>期限3日前以内の要対応アラート（毎朝8:00 自動通知対象: ${urgentItems.length}件）</h3>
+              <ul>
+                ${urgentItems.map(item => `<li>${item}</li>`).join("")}
+              </ul>
+            </div>
+          </div>
+          <button class="btn btn-amber btn-sm" onclick="runCronTestNow(false)">
+            🔔 今すぐ通知を送信
+          </button>
+        </div>
+      `;
+    }
+
+    // 1. Render Contact Lens Member Cards
+    function renderMembers() {
+      const container = document.getElementById("memberCardsContainer");
+      if (!appState.members || appState.members.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted);font-size:0.86rem;">メンバーが登録されていません。「＋ メンバー追加」から登録してください。</p>`;
+        return;
+      }
+
+      container.innerHTML = appState.members.map(m => {
+        const rem = diffDays(m.deadlineDate);
+        const totalSpan = 14;
+        const pct = Math.max(0, Math.min(100, Math.round((rem / totalSpan) * 100)));
+
+        let statusClass = "status-safe";
+        let statusText = `あと ${rem} 日`;
+        let barColor = "#10b981";
+        let isUrgent = false;
+
+        if (rem < 0) {
+          statusClass = "status-danger";
+          statusText = `⚠️ ${Math.abs(rem)}日超過！要交換`;
+          barColor = "#dc2626";
+          isUrgent = true;
+        } else if (rem === 0) {
+          statusClass = "status-danger";
+          statusText = `🚨 本日交換日！`;
+          barColor = "#dc2626";
+          isUrgent = true;
+        } else if (rem <= 3) {
+          statusClass = "status-warning";
+          statusText = `⏰ 交換間近（あと ${rem} 日）`;
+          barColor = "#f59e0b";
+          isUrgent = true;
+        }
+
+        const lineText = `【2WEEKコンタクト交換リマインド】\n👤 ${m.name}（${m.memo}）\n📅 開封日: ${m.startDate}\n🔔 交換期限: ${m.deadlineDate}（${statusText}）`;
+        const gcalUrl = buildGoogleCalendarUrl(
+          `👁️ ${m.name} 2WEEKコンタクト交換日 (${m.memo})`,
+          m.deadlineDate,
+          `開封日: ${m.startDate}\n銘柄: ${m.memo}\n2週間交換期限日です。新しいレンズに交換しましょう！`
+        );
+
+        const initial = m.name ? m.name.slice(0, 1) : "👤";
+
+        return `
+          <div class="member-card theme-${escapeHtml(m.themeColor || 'blue')} ${isUrgent ? 'is-urgent' : ''}">
+            <div class="member-top">
+              <div class="member-identity">
+                <div class="member-avatar">${escapeHtml(initial)}</div>
+                <div>
+                  <div class="member-name-row">
+                    <span class="member-name">${escapeHtml(m.name)}</span>
+                    <span class="member-memo">${escapeHtml(m.memo || '2WEEKコンタクト')}</span>
+                  </div>
+                  <div class="member-email">✉️ ${escapeHtml(m.email || 'メールアドレス未設定')}</div>
+                </div>
+              </div>
+              <span class="deadline-status-pill ${statusClass}">${statusText}</span>
+            </div>
+
+            <div class="gauge-section">
+              <div class="gauge-dates">
+                <span>🟢 開封日: ${escapeHtml(m.startDate)}</span>
+                <span>🎯 交換期限(14日後): <strong>${escapeHtml(m.deadlineDate)}</strong></span>
+              </div>
+              <div class="gauge-track">
+                <div class="gauge-fill" style="width:${pct}%;background:${barColor};"></div>
+              </div>
+            </div>
+
+            <div class="member-controls-row">
+              <button class="btn btn-primary btn-sm" onclick="renewLensToday('${escapeJs(m.id)}')">
+                ✨ 今日新しいレンズに交換（+14日リセット）
+              </button>
+              <div class="date-quick-edit">
+                <label>開封日変更:</label>
+                <input type="date" value="${escapeHtml(m.startDate)}" onchange="changeMemberStartDate('${escapeJs(m.id)}', this.value)" />
+              </div>
+            </div>
+
+            <div class="share-actions-row">
+              <button class="btn btn-line btn-sm" onclick="copyForLineShare(${ JSON.stringify(lineText).replace(/"/g, '&quot;') }, false)">
+                💬 LINE共有コピー
+              </button>
+              <button class="btn btn-outline btn-sm" onclick="copyForLineShare(${ JSON.stringify(lineText).replace(/"/g, '&quot;') }, true)">
+                📲 LINEアプリで送る
+              </button>
+              <a class="btn btn-gcal btn-sm" href="${gcalUrl}" target="_blank" rel="noopener">
+                📅 Googleカレンダー登録
+              </a>
+              <div style="margin-left:auto;display:flex;gap:4px;">
+                <button class="btn btn-outline btn-sm" onclick="openMemberModal('${escapeJs(m.id)}')">✏️ 編集</button>
+                <button class="btn btn-danger-ghost btn-sm" onclick="deleteMember('${escapeJs(m.id)}')">🗑️</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      // Also update Web Push member selector
+      const sel = document.getElementById("pushSubscribeMemberSelect");
+      if (sel) {
+        const currentVal = sel.value;
+        sel.innerHTML = `<option value="全員">対象: 全員</option>` +
+          appState.members.map(m => `<option value="${escapeHtml(m.name)}">${escapeHtml(m.name)}の端末</option>`).join("");
+        sel.value = currentVal || "全員";
+      }
+    }
+
+    // Member Actions
+    async function renewLensToday(memberId) {
+      const today = appState.serverDate || new Date().toISOString().slice(0, 10);
+      const deadline = addDays(today, 14);
+      const res = await fetch(`/api/members/${encodeURIComponent(memberId)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ startDate: today, deadlineDate: deadline })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        renderApp();
+        showToast("✨ 本日開封として14日後の交換期限に更新しました！");
+      }
+    }
+
+    async function changeMemberStartDate(memberId, newStartDate) {
+      if (!newStartDate) return;
+      const deadline = addDays(newStartDate, 14);
+      const res = await fetch(`/api/members/${encodeURIComponent(memberId)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ startDate: newStartDate, deadlineDate: deadline })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        renderApp();
+        showToast(`📅 開封日を ${newStartDate}（期限: ${deadline}）に更新しました`);
+      }
+    }
+
+    function openMemberModal(memberId = null) {
+      const modal = document.getElementById("memberModal");
+      const today = appState.serverDate || new Date().toISOString().slice(0, 10);
+
+      if (memberId) {
+        const m = appState.members.find(x => x.id === memberId);
+        if (!m) return;
+        document.getElementById("memberModalTitle").textContent = `👤 ${m.name} の情報編集`;
+        document.getElementById("modalMemberId").value = m.id;
+        document.getElementById("modalMemberName").value = m.name;
+        document.getElementById("modalMemberColor").value = m.themeColor || "blue";
+        document.getElementById("modalMemberEmail").value = m.email || "";
+        document.getElementById("modalMemberMemo").value = m.memo || "";
+        document.getElementById("modalMemberStart").value = m.startDate;
+        document.getElementById("modalMemberDeadline").value = m.deadlineDate;
+      } else {
+        document.getElementById("memberModalTitle").textContent = "👤 新規メンバー追加";
+        document.getElementById("modalMemberId").value = "";
+        document.getElementById("modalMemberName").value = "";
+        document.getElementById("modalMemberColor").value = "emerald";
+        document.getElementById("modalMemberEmail").value = "";
+        document.getElementById("modalMemberMemo").value = "アクアロックス (2WEEK)";
+        document.getElementById("modalMemberStart").value = today;
+        document.getElementById("modalMemberDeadline").value = addDays(today, 14);
+      }
+      modal.classList.add("open");
+    }
+
+    function closeMemberModal() {
+      document.getElementById("memberModal").classList.remove("open");
+    }
+
+    function autoCalcModalMemberDeadline() {
+      const start = document.getElementById("modalMemberStart").value;
+      if (start) {
+        document.getElementById("modalMemberDeadline").value = addDays(start, 14);
+      }
+    }
+
+    async function submitMemberModal() {
+      const id = document.getElementById("modalMemberId").value;
+      const payload = {
+        name: document.getElementById("modalMemberName").value.trim(),
+        themeColor: document.getElementById("modalMemberColor").value,
+        email: document.getElementById("modalMemberEmail").value.trim(),
+        memo: document.getElementById("modalMemberMemo").value.trim(),
+        startDate: document.getElementById("modalMemberStart").value,
+        deadlineDate: document.getElementById("modalMemberDeadline").value
+      };
+
+      if (!payload.name) {
+        alert("メンバー名を入力してください");
+        return;
+      }
+
+      const url = id ? `/api/members/${encodeURIComponent(id)}` : "/api/members";
+      const method = id ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        closeMemberModal();
+        renderApp();
+        showToast("👤 メンバー情報を保存しました");
+      }
+    }
+
+    async function deleteMember(memberId) {
+      const m = appState.members.find(x => x.id === memberId);
+      if (!m || !confirm(`「${m.name}」のカードを削除しますか？`)) return;
+      const res = await fetch(`/api/members/${encodeURIComponent(memberId)}`, { method: "DELETE" });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        renderApp();
+        showToast("🗑️ メンバーを削除しました");
+      }
+    }
+
+    // 2. Fuel Card Management & Zero-Tracking Modes
+    async function saveFuelSettings() {
+      const efficiency = parseFloat(document.getElementById("inputEfficiency").value) || 15;
+      const fuelPrice = parseFloat(document.getElementById("inputFuelPrice").value) || 175;
+      const res = await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ efficiency, fuelPrice })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        renderApp();
+        showToast(`⚙️ 燃費(${efficiency}km/L)・単価(${fuelPrice}円/L)を同期しました`);
+      }
+    }
+
+    function selectFuelMode(modeNum) {
+      currentFuelMode = modeNum;
+      document.getElementById("modeTab1").classList.toggle("active", modeNum === 1);
+      document.getElementById("modeTab2").classList.toggle("active", modeNum === 2);
+      document.getElementById("modeTab3").classList.toggle("active", modeNum === 3);
+
+      document.getElementById("fuelModePanel1").classList.toggle("hidden", modeNum !== 1);
+      document.getElementById("fuelModePanel2").classList.toggle("hidden", modeNum !== 2);
+      document.getElementById("fuelModePanel3").classList.toggle("hidden", modeNum !== 3);
+
+      recalcCurrentFuelMode();
+    }
+
+    function renderPresets() {
+      const container = document.getElementById("presetListContainer");
+      if (!appState.presets || appState.presets.length === 0) {
+        container.innerHTML = `<p style="font-size:0.8rem;color:var(--text-muted);">固定ルートがありません。「＋ ルート追加」から追加してください。</p>`;
+        return;
+      }
+
+      container.innerHTML = appState.presets.map(p => {
+        const subTotalKm = (Number(p.km) * Number(p.count)).toFixed(1).replace(/\.0$/, "");
+        return `
+          <div class="preset-item">
+            <div class="preset-info">
+              <div class="preset-name">${escapeHtml(p.name)}</div>
+              <div class="preset-km">往復 ${p.km} km × ${p.count} 回 ＝ <strong>${subTotalKm} km</strong></div>
+            </div>
+            <div class="counter-controls">
+              <button class="btn-counter" onclick="updatePresetCount('${escapeJs(p.id)}', ${Number(p.count) - 1})">−</button>
+              <span class="counter-val">${p.count}回</span>
+              <button class="btn-counter" onclick="updatePresetCount('${escapeJs(p.id)}', ${Number(p.count) + 1})">＋</button>
+              <button class="btn btn-outline btn-sm" onclick="openPresetModal('${escapeJs(p.id)}')">✏️</button>
+              <button class="btn btn-danger-ghost btn-sm" onclick="deletePreset('${escapeJs(p.id)}')">🗑️</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function updatePresetCount(presetId, newCount) {
+      const count = Math.max(0, newCount);
+      const res = await fetch(`/api/presets/${encodeURIComponent(presetId)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ count })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        renderApp();
+      }
+    }
+
+    function openPresetModal(presetId = null) {
+      const modal = document.getElementById("presetModal");
+      if (presetId) {
+        const p = appState.presets.find(x => x.id === presetId);
+        if (!p) return;
+        document.getElementById("presetModalTitle").textContent = "🛣️ 固定ルートの編集";
+        document.getElementById("modalPresetId").value = p.id;
+        document.getElementById("modalPresetName").value = p.name;
+        document.getElementById("modalPresetKm").value = p.km;
+        document.getElementById("modalPresetCount").value = p.count;
+      } else {
+        document.getElementById("presetModalTitle").textContent = "🛣️ 固定ルートの追加";
+        document.getElementById("modalPresetId").value = "";
+        document.getElementById("modalPresetName").value = "";
+        document.getElementById("modalPresetKm").value = 30;
+        document.getElementById("modalPresetCount").value = 1;
+      }
+      modal.classList.add("open");
+    }
+
+    function closePresetModal() {
+      document.getElementById("presetModal").classList.remove("open");
+    }
+
+    async function submitPresetModal() {
+      const id = document.getElementById("modalPresetId").value;
+      const payload = {
+        name: document.getElementById("modalPresetName").value.trim(),
+        km: parseFloat(document.getElementById("modalPresetKm").value) || 10,
+        count: parseInt(document.getElementById("modalPresetCount").value, 10) || 0
+      };
+      if (!payload.name) {
+        alert("ルート名を入力してください");
+        return;
+      }
+      const url = id ? `/api/presets/${encodeURIComponent(id)}` : "/api/presets";
+      const method = id ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        closePresetModal();
+        renderApp();
+        showToast("🛣️ 固定ルートを保存しました");
+      }
+    }
+
+    async function deletePreset(presetId) {
+      if (!confirm("この固定ルートを削除しますか？")) return;
+      const res = await fetch(`/api/presets/${encodeURIComponent(presetId)}`, { method: "DELETE" });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        renderApp();
+      }
+    }
+
+    // Recalculate Fuel Mode 1, 2, 3
+    function recalcCurrentFuelMode() {
+      if (currentFuelMode === 1) recalcFuelMode1();
+      else if (currentFuelMode === 2) recalcFuelMode2();
+      else recalcFuelMode3("slider");
+    }
+
+    function recalcFuelMode1FromYen() {
+      const price = Number(appState.settings.fuelPrice) || 175;
+      const yenVal = parseFloat(document.getElementById("mode1ActualYen").value);
+      const litersEl = document.getElementById("mode1ActualLiters");
+      if (!isNaN(yenVal) && yenVal > 0) {
+        litersEl.value = (yenVal / price).toFixed(2);
+      } else {
+        litersEl.value = "";
+      }
+      recalcFuelMode1(false);
+    }
+
+    function recalcFuelMode1(syncYen = true) {
+      const eff = Number(appState.settings.efficiency) || 15;
+      const price = Number(appState.settings.fuelPrice) || 175;
+
+      let totalBizKm = 0;
+      const activeNames = [];
+      for (const p of appState.presets) {
+        const c = Number(p.count) || 0;
+        if (c > 0) {
+          totalBizKm += Number(p.km) * c;
+          activeNames.push(`${p.name}×${c}`);
+        }
+      }
+
+      const bizLiters = +(totalBizKm / eff).toFixed(2);
+      const bizYen = Math.round(bizLiters * price);
+
+      const actualLitersVal = parseFloat(document.getElementById("mode1ActualLiters").value);
+      let privLiters = 0;
+      let privYen = 0;
+
+      if (!isNaN(actualLitersVal) && actualLitersVal > 0) {
+        if (syncYen) {
+          document.getElementById("mode1ActualYen").value = Math.round(actualLitersVal * price);
+        }
+        privLiters = Math.max(0, +(actualLitersVal - bizLiters).toFixed(2));
+        privYen = Math.round(privLiters * price);
+      } else if (syncYen) {
+        document.getElementById("mode1ActualYen").value = "";
+      }
+
+      currentCalcResult = {
+        modeLabel: "① 固定ルート合算",
+        bizKm: +totalBizKm.toFixed(1),
+        bizLiters,
+        bizYen,
+        privLiters,
+        privYen,
+        defaultMemo: activeNames.length ? `固定ルート合算 (${activeNames.join(" / ")})` : "固定ルート合算"
+      };
+      updateCalcResultBox();
+    }
+
+    function recalcFuelMode2() {
+      const eff = Number(appState.settings.efficiency) || 15;
+      const price = Number(appState.settings.fuelPrice) || 175;
+      const bizDays = parseFloat(document.getElementById("mode2BizDays").value) || 0;
+      const avgKm = parseFloat(document.getElementById("mode2AvgKm").value) || 0;
+
+      const bizKm = +(bizDays * avgKm).toFixed(1);
+      const bizLiters = +(bizKm / eff).toFixed(2);
+      const bizYen = Math.round(bizLiters * price);
+
+      currentCalcResult = {
+        modeLabel: "② 定量・定額ストップ給油",
+        bizKm,
+        bizLiters,
+        bizYen,
+        privLiters: 0,
+        privYen: 0,
+        defaultMemo: `定量ストップ給油（業務${bizDays}日×平均${avgKm}km）`
+      };
+      updateCalcResultBox();
+    }
+
+    function setMode3Preset(bizDays, privDays) {
+      document.getElementById("sliderMode3BizDays").value = bizDays;
+      document.getElementById("sliderMode3PrivDays").value = privDays;
+      recalcFuelMode3("slider");
+    }
+
+    function recalcFuelMode3(source) {
+      const eff = Number(appState.settings.efficiency) || 15;
+      const price = Number(appState.settings.fuelPrice) || 175;
+
+      const litersInput = document.getElementById("mode3TotalLiters");
+      const yenInput = document.getElementById("mode3TotalYen");
+
+      let totalLiters = parseFloat(litersInput.value) || 0;
+      let totalYen = parseFloat(yenInput.value) || 0;
+
+      if (source === "liters") {
+        totalYen = Math.round(totalLiters * price);
+        yenInput.value = totalYen;
+      } else if (source === "yen") {
+        totalLiters = +(totalYen / price).toFixed(2);
+        litersInput.value = totalLiters;
+      } else {
+        totalYen = Math.round(totalLiters * price);
+        if (document.activeElement !== yenInput) yenInput.value = totalYen;
+      }
+
+      const bizDays = parseInt(document.getElementById("sliderMode3BizDays").value, 10) || 1;
+      const privDays = parseInt(document.getElementById("sliderMode3PrivDays").value, 10) || 0;
+      const totalDays = Math.max(1, bizDays + privDays);
+
+      const bizRatio = bizDays / totalDays;
+      const privRatio = privDays / totalDays;
+
+      document.getElementById("lblMode3BizDays").textContent = bizDays;
+      document.getElementById("lblMode3PrivDays").textContent = privDays;
+      document.getElementById("sliderBizVal").textContent = bizDays;
+      document.getElementById("sliderPrivVal").textContent = privDays;
+      document.getElementById("lblMode3BizPct").textContent = Math.round(bizRatio * 100);
+      document.getElementById("lblMode3PrivPct").textContent = Math.round(privRatio * 100);
+
+      document.getElementById("barMode3Biz").style.width = `${(bizRatio * 100).toFixed(1)}%`;
+      document.getElementById("barMode3Priv").style.width = `${(privRatio * 100).toFixed(1)}%`;
+
+      const bizLiters = +(totalLiters * bizRatio).toFixed(2);
+      const privLiters = +(totalLiters - bizLiters).toFixed(2);
+      const bizKm = +(bizLiters * eff).toFixed(1);
+      const bizYen = Math.round(bizLiters * price);
+      const privYen = Math.round(privLiters * price);
+
+      currentCalcResult = {
+        modeLabel: "③ 満タン後曜日按分",
+        bizKm,
+        bizLiters,
+        bizYen,
+        privLiters,
+        privYen,
+        defaultMemo: `満タン給油分（業務${bizDays}日 : 休日私用${privDays}日按分）`
+      };
+      updateCalcResultBox();
+    }
+
+    function updateCalcResultBox() {
+      const eff = Number(appState.settings.efficiency) || 15;
+      const price = Number(appState.settings.fuelPrice) || 175;
+      document.getElementById("calcResultModeTitle").textContent = `${currentCalcResult.modeLabel} 算出結果`;
+      document.getElementById("calcResultFormulaHint").textContent = `燃費 ${eff}km/L・単価 ${price}円/L`;
+
+      document.getElementById("resBizMain").textContent = `${currentCalcResult.bizLiters} L / ¥${currentCalcResult.bizYen.toLocaleString()}`;
+      if (currentFuelMode === 2) {
+        document.getElementById("resBizSub").textContent = `🛑 給油機ストップ目安: ${currentCalcResult.bizLiters} L（業務距離 ${currentCalcResult.bizKm} km）`;
+      } else {
+        document.getElementById("resBizSub").textContent = `業務換算走行距離: ${currentCalcResult.bizKm} km`;
+      }
+
+      document.getElementById("resPrivMain").textContent = `${currentCalcResult.privLiters} L / ¥${currentCalcResult.privYen.toLocaleString()}`;
+      document.getElementById("resPrivSub").textContent =
+        currentCalcResult.privYen > 0
+          ? `経理精算時に私用分として控除・自己負担する金額`
+          : `私用分の混入なし（全額業務計上可能）`;
+    }
+
+    function autoSetFuelDeadline() {
+      const useDate = document.getElementById("newFuelUseDate").value;
+      if (useDate) {
+        document.getElementById("newFuelDeadline").value = addDays(useDate, 6);
+      }
+    }
+
+    async function saveNewFuelRecord() {
+      const useDate = document.getElementById("newFuelUseDate").value || appState.serverDate;
+      const deadline = document.getElementById("newFuelDeadline").value || addDays(useDate, 6);
+      const memoInput = document.getElementById("newFuelMemo");
+      const memo = memoInput.value.trim() || currentCalcResult.defaultMemo;
+
+      const payload = {
+        useDate,
+        deadline,
+        mode: currentCalcResult.modeLabel,
+        memo,
+        bizKm: currentCalcResult.bizKm,
+        bizLiters: currentCalcResult.bizLiters,
+        bizYen: currentCalcResult.bizYen,
+        privLiters: currentCalcResult.privLiters,
+        privYen: currentCalcResult.privYen
+      };
+
+      const res = await fetch("/api/fuel-records", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        memoInput.value = "";
+        renderApp();
+        showToast("⛽ ガソリン精算記録を登録しました！");
+      }
+    }
+
+    function renderFuelRecords() {
+      const container = document.getElementById("fuelRecordsContainer");
+      const countLbl = document.getElementById("fuelRecordsCountLabel");
+      const records = appState.fuelRecords || [];
+      countLbl.textContent = `全 ${records.length} 件`;
+
+      if (records.length === 0) {
+        container.innerHTML = `<p style="font-size:0.82rem;color:var(--text-muted);">精算記録はありません。</p>`;
+        return;
+      }
+
+      container.innerHTML = records.map(r => {
+        const rem = diffDays(r.deadline);
+        const isSettled = Number(r.settled) === 1;
+        const isUrgent = !isSettled && rem <= 3;
+
+        let badgeHtml = "";
+        if (isSettled) {
+          badgeHtml = `<span class="deadline-status-pill status-safe">✅ 精算完了</span>`;
+        } else if (rem < 0) {
+          badgeHtml = `<span class="deadline-status-pill status-danger">🚨 精算期限 ${Math.abs(rem)}日超過</span>`;
+        } else if (rem === 0) {
+          badgeHtml = `<span class="deadline-status-pill status-danger">🚨 本日精算期限！</span>`;
+        } else if (rem <= 3) {
+          badgeHtml = `<span class="deadline-status-pill status-warning">⏰ 精算期限まであと ${rem} 日</span>`;
+        } else {
+          badgeHtml = `<span class="deadline-status-pill status-safe">あと ${rem} 日</span>`;
+        }
+
+        const lineText = `【社用ガソリンカード精算リマインド】\n⛽ 給油日: ${r.useDate}（${r.mode}）\n📅 精算期限: ${r.deadline}\n📝 メモ: ${r.memo}\n🏢 業務経費計上: ${r.bizKm}km / ${r.bizLiters}L / ¥${Number(r.bizYen).toLocaleString()}\n🏠 私用除外(自己負担): ${r.privLiters}L / ¥${Number(r.privYen).toLocaleString()}`;
+        const gcalUrl = buildGoogleCalendarUrl(
+          `⛽ ガソリンカード精算期限 (私用控除 ¥${Number(r.privYen).toLocaleString()})`,
+          r.deadline,
+          `給油日: ${r.useDate}\nモード: ${r.mode}\nメモ: ${r.memo}\n業務経費: ${r.bizKm}km (${r.bizLiters}L / ¥${Number(r.bizYen).toLocaleString()})\n私用控除額: ${r.privLiters}L / ¥${Number(r.privYen).toLocaleString()}`
+        );
+
+        return `
+          <div class="fuel-record-card ${isUrgent ? 'is-urgent' : ''} ${isSettled ? 'is-settled' : ''}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;">
+              <div>
+                <div style="font-size:0.76rem;font-weight:700;color:var(--primary);">${escapeHtml(r.mode)}</div>
+                <div style="font-size:0.92rem;font-weight:800;">${escapeHtml(r.memo || 'ガソリン給油記録')}</div>
+                <div style="font-size:0.78rem;color:var(--text-sub);margin-top:2px;">
+                  ⛽ 給油日: ${escapeHtml(r.useDate)} → 🎯 <strong>精算期限: ${escapeHtml(r.deadline)}</strong>
+                </div>
+              </div>
+              ${badgeHtml}
+            </div>
+
+            <div class="record-split-pills">
+              <div class="split-pill split-biz">
+                <div style="font-size:0.72rem;font-weight:700;">🏢 業務経費計上分</div>
+                <div style="font-size:0.95rem;font-weight:800;">¥${Number(r.bizYen).toLocaleString()} <span style="font-size:0.76rem;font-weight:600;">(${r.bizLiters} L / ${r.bizKm} km)</span></div>
+              </div>
+              <div class="split-pill split-priv">
+                <div style="font-size:0.72rem;font-weight:700;">🏠 私用除外（自己負担控除額）</div>
+                <div style="font-size:0.95rem;font-weight:800;">¥${Number(r.privYen).toLocaleString()} <span style="font-size:0.76rem;font-weight:600;">(${r.privLiters} L)</span></div>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;">
+              <button class="btn ${isSettled ? 'btn-outline' : 'btn-emerald'} btn-sm" onclick="toggleFuelSettled(${r.id}, ${isSettled ? 0 : 1})">
+                ${isSettled ? '↩️ 未精算に戻す' : '✅ 精算済にする'}
+              </button>
+              <button class="btn btn-line btn-sm" onclick="copyForLineShare(${ JSON.stringify(lineText).replace(/"/g, '&quot;') }, false)">
+                💬 LINE共有コピー
+              </button>
+              <a class="btn btn-gcal btn-sm" href="${gcalUrl}" target="_blank" rel="noopener">
+                📅 カレンダー登録
+              </a>
+              <button class="btn btn-danger-ghost btn-sm" style="margin-left:auto;" onclick="deleteFuelRecord(${r.id})">
+                🗑️
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function toggleFuelSettled(recordId, settledVal) {
+      const res = await fetch(`/api/fuel-records/${recordId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ settled: settledVal })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        renderApp();
+        showToast(settledVal ? "✅ 精算済みに更新しました！" : "↩️ 未精算に戻しました");
+      }
+    }
+
+    async function deleteFuelRecord(recordId) {
+      if (!confirm("このガソリン精算記録を削除しますか？")) return;
+      const res = await fetch(`/api/fuel-records/${recordId}`, { method: "DELETE" });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        renderApp();
+        showToast("🗑️ ガソリン精算記録を削除しました");
+      }
+    }
+
+    // 3. Notifications & Web Push & Cron Management
+    function renderNotificationSection() {
+      const cfg = appState.notificationConfig || {};
+      const subs = appState.pushSubscriptions || [];
+      const logs = appState.notificationLogs || [];
+
+      const setValIfIdle = (id, val) => {
+        const el = document.getElementById(id);
+        if (el && document.activeElement !== el && val !== undefined) {
+          el.value = val;
+        }
+      };
+
+      setValIfIdle("cfgCronTime", cfg.cronTime || "08:00");
+      setValIfIdle("cfgEmailEnabled", String(cfg.emailEnabled ?? 1));
+      setValIfIdle("cfgSmtpHost", cfg.smtpHost || "smtp.gmail.com");
+      setValIfIdle("cfgSmtpPort", cfg.smtpPort || 587);
+      setValIfIdle("cfgSmtpUser", cfg.smtpUser || "");
+      setValIfIdle("cfgSmtpFromName", cfg.smtpFromName || "コンタクト＆ガソリン期限管理Bot");
+      setValIfIdle("cfgLineEnabled", String(cfg.lineEnabled ?? 0));
+      setValIfIdle("cfgLineTargetId", cfg.lineTargetUserId || "");
+
+      const passInput = document.getElementById("cfgSmtpPass");
+      if (passInput && document.activeElement !== passInput && cfg.hasSmtpPass && !passInput.value) {
+        passInput.value = "********";
+      }
+
+      // Render Cloud (Supabase) Status
+      const cloud = appState.cloudStatus || {};
+      const cloudBadge = document.getElementById("cloudStatusBadge");
+      const cloudDetail = document.getElementById("cloudStatusDetail");
+      setValIfIdle("cfgSupabaseUrl", cloud.supabaseUrl || "");
+      if (cloud.supabaseAnonKey) {
+        setValIfIdle("cfgSupabaseKey", cloud.supabaseAnonKey);
+      }
+      if (cloudBadge) {
+        if (cloud.connected) {
+          cloudBadge.textContent = "🟢 Supabaseクラウド同期中";
+          cloudBadge.style.background = "#dcfce7";
+          cloudBadge.style.color = "#166534";
+        } else if (cloud.enabled) {
+          cloudBadge.textContent = "⚠️ 接続エラー（SQLスキーマ未実行等）";
+          cloudBadge.style.background = "#fee2e2";
+          cloudBadge.style.color = "#991b1b";
+        } else {
+          cloudBadge.textContent = "💻 ローカルSQLiteモード";
+          cloudBadge.style.background = "#fef3c7";
+          cloudBadge.style.color = "#92400e";
+        }
+      }
+      if (cloudDetail) {
+        cloudDetail.textContent = cloud.message || "";
+      }
+
+      const subSummary = document.getElementById("pushSubscriptionsSummary");
+      if (subSummary) {
+        if (subs.length > 0) {
+          subSummary.innerHTML = `✅ 現在 <strong>${subs.length} 台</strong> のブラウザ/端末がWeb Push通知を購読中です（${subs.map(s => escapeHtml(s.memberName)).join("・")}）`;
+        } else {
+          subSummary.innerHTML = `💡 上の「🔔 この端末でWeb Push通知を有効化」ボタンを押すと、ブラウザ/OSのネイティブ通知が届きます。`;
+        }
+      }
+
+      const logsContainer = document.getElementById("notificationLogsContainer");
+      if (!logs || logs.length === 0) {
+        logsContainer.innerHTML = `<p style="font-size:0.82rem;color:var(--text-muted);">まだ通知履歴がありません。右上の「⚡ 朝8:00通知を今すぐテスト送信」を押すと、ここに実行結果とメール文面が表示されます。</p>`;
+      } else {
+        logsContainer.innerHTML = logs.map(l => {
+          const badgeColor = l.status === "SENT" ? "#166534" : (l.status === "PREVIEW_SAVED" ? "#1e40af" : "#92400e");
+          const badgeBg = l.status === "SENT" ? "#dcfce7" : (l.status === "PREVIEW_SAVED" ? "#dbeafe" : "#fef3c7");
+          return `
+            <div class="log-item">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
+                <strong>[${escapeHtml(l.channel)}] ${escapeHtml(l.subject)}</strong>
+                <span style="background:${badgeBg};color:${badgeColor};padding:2px 8px;border-radius:999px;font-size:0.72rem;font-weight:800;">
+                  ${escapeHtml(l.status)}
+                </span>
+              </div>
+              <div style="font-size:0.74rem;color:var(--text-muted);margin-top:3px;">
+                🕒 ${escapeHtml(l.executedAt)} ／ 宛先: ${escapeHtml(l.recipient)} ／ トリガー: ${escapeHtml(l.triggerType)}
+              </div>
+              <div style="font-size:0.75rem;color:var(--primary-dark);margin-top:2px;">
+                ℹ️ ${escapeHtml(l.detail)}
+              </div>
+              <pre>${escapeHtml(l.body)}</pre>
+            </div>
+          `;
+        }).join("");
+      }
+    }
+
+    async function saveNotificationConfig() {
+      const payload = {
+        cronTime: document.getElementById("cfgCronTime").value || "08:00",
+        emailEnabled: parseInt(document.getElementById("cfgEmailEnabled").value, 10) === 1,
+        smtpHost: document.getElementById("cfgSmtpHost").value.trim(),
+        smtpPort: parseInt(document.getElementById("cfgSmtpPort").value, 10) || 587,
+        smtpUser: document.getElementById("cfgSmtpUser").value.trim(),
+        smtpPass: document.getElementById("cfgSmtpPass").value,
+        smtpFromName: document.getElementById("cfgSmtpFromName").value.trim(),
+        webPushEnabled: true,
+        lineEnabled: parseInt(document.getElementById("cfgLineEnabled").value, 10) === 1,
+        lineChannelToken: document.getElementById("cfgLineToken").value,
+        lineTargetUserId: document.getElementById("cfgLineTargetId").value.trim()
+      };
+
+      const res = await fetch("/api/notification-config", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        renderApp();
+        showToast("💾 毎朝8:00の自動通知設定を保存しました！");
+      }
+    }
+
+    async function saveSupabaseCloudConfig() {
+      const supabaseUrl = document.getElementById("cfgSupabaseUrl").value.trim();
+      const supabaseKey = document.getElementById("cfgSupabaseKey").value.trim();
+      const res = await fetch("/api/cloud-config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ supabaseUrl, supabaseKey })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        renderApp();
+        if (appState.cloudStatus?.connected) {
+          showToast("☁️ SupabaseクラウドDBと同期しました！");
+        } else {
+          showToast("ℹ️ 設定を保存しました: " + (appState.cloudStatus?.message || ""));
+        }
+      }
+    }
+
+    async function clearNotificationLogs() {
+      const res = await fetch("/api/notification-logs", { method: "DELETE" });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        renderApp();
+        showToast("🧹 通知履歴をクリアしました");
+      }
+    }
+
+    async function resetToSeedData() {
+      if (!confirm("初期シードデータ（シンジロウ・ユリ・3つの固定ルート・ガソリン精算記録#101）にリセットしますか？")) return;
+      const res = await fetch("/api/reset-seed", { method: "POST" });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        renderApp();
+        showToast("🔄 初期シードデータを復元しました！");
+      }
+    }
+
+    // URL-safe Base64 to Uint8Array for VAPID applicationServerKey
+    function urlBase64ToUint8Array(base64String) {
+      const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+      const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+      const rawData = window.atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+      for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+      return outputArray;
+    }
+
+    async function registerServiceWorker() {
+      if (!("serviceWorker" in navigator)) return null;
+      try {
+        swRegistration = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+        return swRegistration;
+      } catch (err) {
+        console.warn("ServiceWorker registration error:", err);
+        return null;
+      }
+    }
+
+    async function subscribeWebPush() {
+      if (!("Notification" in window)) {
+        alert("このブラウザはWeb Push通知に対応していません。");
+        return;
+      }
+
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") {
+        alert("ブラウザの通知権限が許可されませんでした。ブラウザ設定から通知を許可してください。");
+        return;
+      }
+
+      const reg = swRegistration || (await registerServiceWorker());
+      const memberName = document.getElementById("pushSubscribeMemberSelect")?.value || "全員";
+
+      let subJson = null;
+      if (reg && reg.pushManager && appState.notificationConfig?.vapidPublicKey) {
+        try {
+          const appServerKey = urlBase64ToUint8Array(appState.notificationConfig.vapidPublicKey);
+          const sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: appServerKey
+          });
+          subJson = sub.toJSON();
+        } catch (err) {
+          console.warn("Standard pushManager.subscribe fallback:", err);
+        }
+      }
+
+      if (!subJson) {
+        // Fallback local browser endpoint identifier so local Service Worker notifications still register
+        subJson = {
+          endpoint: `${window.location.origin}/local-browser-push/${encodeURIComponent(memberName)}`,
+          keys: { p256dh: "local", auth: "local" }
+        };
+      }
+
+      const res = await fetch("/api/push/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subscription: subJson, memberName })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        renderApp();
+        const btn = document.getElementById("btnEnableWebPush");
+        if (btn) {
+          btn.classList.add("active-push");
+          btn.textContent = "✅ Web Push通知 購読中";
+        }
+        triggerBrowserNotification(
+          "✅ Web Push通知を有効化しました",
+          `毎朝 ${appState.notificationConfig.cronTime || '08:00'} に交換・精算期限3日前のアラートをお届けします。`
+        );
+        showToast("🔔 Web Push通知の購読登録が完了しました！");
+      }
+    }
+
+    function triggerBrowserNotification(title, body, tag = "deadline-alert") {
+      if (!("Notification" in window) || Notification.permission !== "granted") return;
+      if (swRegistration && swRegistration.active) {
+        swRegistration.active.postMessage({
+          type: "SHOW_NOTIFICATION",
+          payload: { title, body, tag, url: "/" }
+        });
+      } else {
+        new Notification(title, { body, icon: "/icon.svg", tag });
+      }
+    }
+
+    async function runCronTestNow(forceAll = false) {
+      // Request notification permission proactively if default so user sees Web Push immediately
+      if ("Notification" in window && Notification.permission === "default") {
+        try {
+          await Notification.requestPermission();
+        } catch (_) {}
+      }
+
+      const res = await fetch("/api/notifications/run-now", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ forceAll })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        renderApp();
+        const r = data.result;
+        const count = (r.dueMembersCount || 0) + (r.dueFuelsCount || 0);
+        showToast(`🔔 通知ジョブを実行しました（対象: コンタクト${r.dueMembersCount}名 / ガソリン${r.dueFuelsCount}件）`);
+        if (count > 0) {
+          switchView("notifications");
+        }
+      }
+    }
+
+    // Real-time Server-Sent Events (SSE) & Cloud Sync Connection
+    function connectSSE() {
+      const evtSource = new EventSource("/api/events");
+      const badge = document.getElementById("syncStatusText");
+
+      evtSource.onopen = () => {
+        if (badge) badge.textContent = appState.cloudStatus?.connected ? "Supabaseクラウド同期中" : "リアルタイム同期中";
+      };
+
+      evtSource.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.serverless) {
+            // On Vercel Serverless, close SSE stream and use focus/interval sync against Supabase
+            evtSource.close();
+            if (badge) badge.textContent = appState.cloudStatus?.connected ? "クラウド同期中 (Vercel+Supabase)" : "クラウド稼働中";
+            return;
+          }
+          if (msg.state) {
+            appState = msg.state;
+            renderApp();
+          }
+          if (msg.type === "push_alert" && msg.extra) {
+            triggerBrowserNotification(msg.extra.title, msg.extra.body, msg.extra.tag);
+          }
+        } catch (err) {
+          console.warn("SSE message parse error:", err);
+        }
+      };
+
+      evtSource.onerror = () => {
+        if (badge) badge.textContent = appState.cloudStatus?.connected ? "クラウド同期中" : "同期待機中";
+      };
+
+      // Also sync whenever smartphone / browser tab comes back to foreground
+      document.addEventListener("visibilitychange", async () => {
+        if (document.visibilityState === "visible") {
+          try {
+            const res = await fetch("/api/state");
+            if (res.ok) {
+              appState = await res.json();
+              renderApp();
+            }
+          } catch (_) {}
+        }
+      });
+    }
+
+    // Escape helpers
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function escapeJs(str) {
+      return String(str ?? "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+    }
+
+    // Initialize Application
+    async function initApp() {
+      await registerServiceWorker();
+
+      const res = await fetch("/api/state");
+      if (res.ok) {
+        appState = await res.json();
+        const today = appState.serverDate || new Date().toISOString().slice(0, 10);
+        document.getElementById("newFuelUseDate").value = today;
+        document.getElementById("newFuelDeadline").value = addDays(today, 6);
+        renderApp();
+      }
+
+      if ("Notification" in window && Notification.permission === "granted" && appState.pushSubscriptions?.length > 0) {
+        const btn = document.getElementById("btnEnableWebPush");
+        if (btn) {
+          btn.classList.add("active-push");
+          btn.textContent = "✅ Web Push通知 購読中";
+        }
+      }
+
+      connectSSE();
+    }
+
+    window.addEventListener("DOMContentLoaded", initApp);
+  </script>
+</body>
+</html>

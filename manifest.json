@@ -1,0 +1,18 @@
+{
+  "name": "2WEEKコンタクト＆社用ガソリン期限管理",
+  "short_name": "期限管理",
+  "description": "名前登録式の2WEEKコンタクト交換期限管理＆距離メモ不要の社用ガソリンカード私用分除外・精算期限管理アプリ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

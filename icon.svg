@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a" />
+      <stop offset="50%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#0d9488" />
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#bg)" />
+  <!-- Contact Lens Circle -->
+  <circle cx="96" cy="112" r="52" fill="none" stroke="#93c5fd" stroke-width="10" />
+  <circle cx="96" cy="112" r="30" fill="#60a5fa" fill-opacity="0.35" stroke="#ffffff" stroke-width="6" />
+  <path d="M78 96 A22 22 0 0 1 110 92" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+  <!-- Fuel Drop / Gauge Badge -->
+  <circle cx="172" cy="156" r="48" fill="#0f172a" fill-opacity="0.85" stroke="#38bdf8" stroke-width="5" />
+  <path d="M172 124 C172 124 148 152 148 168 A24 24 0 0 0 196 168 C196 152 172 124 172 124 Z" fill="#f59e0b" />
+  <circle cx="164" cy="168" r="6" fill="#fef3c7" />
+</svg>
