@@ -1063,26 +1063,29 @@
         </div>
       </section>
 
-      <!-- RIGHT COLUMN: 2. 距離メモ不要（Zero-Tracking）の社用ガソリンカード私用分除外＆精算期限管理 -->
+      <!-- RIGHT COLUMN: 2. 行き先×回数ベースのシンプルガソリン代算定＆給油日記録 -->
       <section class="panel-card" id="sectionFuel">
         <div class="panel-header">
           <div>
-            <div class="panel-title">⛽ 社用ガソリンカード 私用分除外＆精算期限管理</div>
-            <div class="panel-subtitle">距離メモ不要（Zero-Tracking）・3つのモードで業務上限と私用控除額を即座に算出</div>
+            <div class="panel-title">⛽ ガソリン代算定 ＆ 給油日・行き先記録</div>
+            <div class="panel-subtitle">行き先（距離km）と行った回数からガソリン代をシンプルに算定し、給油日を記録します</div>
           </div>
+          <button class="btn btn-primary btn-sm" onclick="openPresetModal()">
+            ＋ 行き先を登録
+          </button>
         </div>
 
         <!-- Global Fuel Parameters (Efficiency & Fuel Price) -->
         <div class="fuel-params-bar">
           <div class="param-item">
-            <label for="inputEfficiency">🚗 車両燃費（全モード共通）</label>
+            <label for="inputEfficiency">🚗 燃費</label>
             <div class="param-input-group">
               <input type="number" id="inputEfficiency" step="0.5" min="1" value="15" onchange="saveFuelSettings()" />
               <span class="param-unit">km / L</span>
             </div>
           </div>
           <div class="param-item">
-            <label for="inputFuelPrice">⛽ ガソリン単価（全モード共通）</label>
+            <label for="inputFuelPrice">⛽ ガソリン単価</label>
             <div class="param-input-group">
               <input type="number" id="inputFuelPrice" step="1" min="50" value="175" onchange="saveFuelSettings()" />
               <span class="param-unit">円 / L</span>
@@ -1090,158 +1093,110 @@
           </div>
         </div>
 
-        <!-- 3 Calculation Modes Selector -->
-        <div class="mode-tabs">
-          <button class="mode-tab-btn active" id="modeTab1" onclick="selectFuelMode(1)">
-            ① 固定ルート合算<br /><span style="font-weight:500;font-size:0.7rem;">往復km×回数タップ</span>
-          </button>
-          <button class="mode-tab-btn" id="modeTab2" onclick="selectFuelMode(2)">
-            ② 定量・定額ストップ<br /><span style="font-weight:500;font-size:0.7rem;">スタンド現場計算</span>
-          </button>
-          <button class="mode-tab-btn" id="modeTab3" onclick="selectFuelMode(3)">
-            ③ 満タン後 曜日按分<br /><span style="font-weight:500;font-size:0.7rem;">業務vs休日スライダー</span>
-          </button>
-        </div>
+        <!-- Step 1: 行き先リスト（距離の登録＆行った回数の設定） -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+            <span style="font-size:0.86rem;font-weight:800;color:var(--text-main);">📍 1. 行き先と行った回数の設定</span>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-outline btn-sm" onclick="resetAllPresetCounts()" title="すべての行き先の回数を0に戻します">
+                🔄 回数をすべて0にする
+              </button>
+              <button class="btn btn-outline btn-sm" onclick="openPresetModal()">
+                ＋ 行き先追加
+              </button>
+            </div>
+          </div>
 
-        <!-- MODE 1: 固定ルート（往復km）の回数タップ合算 -->
-        <div id="fuelModePanel1">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <span style="font-size:0.8rem;font-weight:700;color:var(--text-sub);">固定ルートをタップして今週・今月の業務走行回数を合算</span>
-            <button class="btn btn-outline btn-sm" onclick="openPresetModal()">＋ ルート追加</button>
+          <!-- Quick Inline Destination Registration Bar -->
+          <div style="display:grid;grid-template-columns:1fr 100px auto;gap:6px;background:#f8fafc;padding:8px 10px;border:1px dashed #cbd5e1;border-radius:10px;margin-bottom:10px;align-items:center;">
+            <input type="text" id="quickPresetName" placeholder="新しい行き先名（例: 🏬 C営業所 往復）" style="padding:7px 10px;border:1px solid #cbd5e1;border-radius:8px;font-size:0.82rem;" />
+            <div style="display:flex;align-items:center;gap:4px;">
+              <input type="number" id="quickPresetKm" placeholder="距離" step="0.5" min="0.5" style="width:100%;padding:7px 8px;border:1px solid #cbd5e1;border-radius:8px;font-size:0.82rem;" />
+              <span style="font-size:0.75rem;color:var(--text-muted);font-weight:700;">km</span>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="quickAddPreset()">追加</button>
           </div>
 
           <div class="preset-list" id="presetListContainer">
             <!-- Rendered from state.presets -->
           </div>
-
-          <div class="form-grid" style="margin-top:10px;">
-            <div class="form-group">
-              <label>（任意）実際の総給油量 (L) を入力すると私用超過分を自動控除</label>
-              <input type="number" id="mode1ActualLiters" step="0.1" min="0" placeholder="未入力なら業務上限のみ算出" oninput="recalcFuelMode1()" />
-            </div>
-            <div class="form-group">
-              <label>または実際の総給油額 (円)</label>
-              <input type="number" id="mode1ActualYen" step="10" min="0" placeholder="自動換算" oninput="recalcFuelMode1FromYen()" />
-            </div>
-          </div>
         </div>
 
-        <!-- MODE 2: ガソリンスタンド現場での「定量・定額ストップ給油」計算 -->
-        <div id="fuelModePanel2" class="hidden">
-          <div class="slider-container">
-            <p style="font-size:0.8rem;color:var(--text-sub);margin-bottom:10px;">
-              <strong>ガソリンスタンドの給油機の前で即決！</strong><br />
-              業務稼働日数 × 1日平均業務距離 ÷ 燃費 から、社用カードで入れてよい「定量ストップ(L) / 定額ストップ(円)」を算出します。
-            </p>
-            <div class="form-grid">
-              <div class="form-group">
-                <label>📅 業務稼働日数（日）</label>
-                <input type="number" id="mode2BizDays" value="5" min="1" max="31" oninput="recalcFuelMode2()" />
-              </div>
-              <div class="form-group">
-                <label>🛣️ 1日あたり平均業務距離（km/日）</label>
-                <input type="number" id="mode2AvgKm" value="36" step="1" min="1" oninput="recalcFuelMode2()" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- MODE 3: 満タン給油後の「業務日数 vs 休日私用日数」スライダー按分 -->
-        <div id="fuelModePanel3" class="hidden">
-          <div class="slider-container">
-            <p style="font-size:0.8rem;color:var(--text-sub);margin-bottom:10px;">
-              <strong>社用カードで満タン給油した後の事後精算に！</strong><br />
-              給油量（または金額）と「業務日数 vs 休日私用日数」スライダーで私用自己負担額を自動按分します。
-            </p>
-            <div class="form-grid">
-              <div class="form-group">
-                <label>⛽ 満タン給油量（L）</label>
-                <input type="number" id="mode3TotalLiters" value="16.8" step="0.1" min="0.1" oninput="recalcFuelMode3('liters')" />
-              </div>
-              <div class="form-group">
-                <label>💴 給油総額（円）</label>
-                <input type="number" id="mode3TotalYen" value="2940" step="10" min="1" oninput="recalcFuelMode3('yen')" />
-              </div>
-            </div>
-
-            <div style="margin-top:12px;">
-              <div style="display:flex;justify-content:space-between;font-size:0.82rem;font-weight:800;">
-                <span style="color:var(--primary);">🏢 業務稼働: <span id="lblMode3BizDays">5</span> 日 (<span id="lblMode3BizPct">71</span>%)</span>
-                <span style="color:var(--danger);">🏠 休日私用: <span id="lblMode3PrivDays">2</span> 日 (<span id="lblMode3PrivPct">29</span>%)</span>
-              </div>
-              <div class="ratio-bar">
-                <div class="ratio-biz" id="barMode3Biz" style="width:71.4%;"></div>
-                <div class="ratio-priv" id="barMode3Priv" style="width:28.6%;"></div>
-              </div>
-
-              <div class="form-grid" style="margin-top:8px;">
-                <div class="form-group">
-                  <label>🏢 業務日数を調整: <span id="sliderBizVal">5</span>日</label>
-                  <input type="range" id="sliderMode3BizDays" min="1" max="14" value="5" oninput="recalcFuelMode3('slider')" />
-                </div>
-                <div class="form-group">
-                  <label>🏠 休日私用日数を調整: <span id="sliderPrivVal">2</span>日</label>
-                  <input type="range" id="sliderMode3PrivDays" min="0" max="14" value="2" oninput="recalcFuelMode3('slider')" />
-                </div>
-              </div>
-
-              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
-                <button type="button" class="btn btn-outline btn-sm" onclick="setMode3Preset(5, 2)">平日5日 : 土日2日</button>
-                <button type="button" class="btn btn-outline btn-sm" onclick="setMode3Preset(5, 1)">平日5日 : 私用1日</button>
-                <button type="button" class="btn btn-outline btn-sm" onclick="setMode3Preset(4, 3)">業務4日 : 連休3日</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Unified Live Calculation Result Display -->
+        <!-- Step 2: 行き先×回数を基準にしたシンプルなガソリン代算定結果 -->
         <div class="calc-result-card">
           <div class="calc-result-header">
-            <span id="calcResultModeTitle">① 固定ルート合算による業務給油上限</span>
+            <span id="calcResultModeTitle">💴 2. 行き先×回数からのガソリン代 算定結果</span>
             <span id="calcResultFormulaHint">燃費 15km/L・単価 175円/L</span>
           </div>
-          <div class="calc-metrics-grid">
+          <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;">
             <div class="metric-box">
-              <div class="metric-label">🏢 業務経費計上上限（社用分）</div>
-              <div class="metric-value" id="resBizMain">13.4 L / ¥2,345</div>
-              <div class="metric-sub" id="resBizSub">業務走行距離: 201.0 km</div>
+              <div class="metric-label">🛣️ 合計走行距離</div>
+              <div class="metric-value" id="resTotalKm" style="font-size:1.15rem;color:#e2e8f0;">0 km</div>
+              <div class="metric-sub" id="resActiveRoutesCount">行き先 0ヶ所</div>
             </div>
-            <div class="metric-box priv-box">
-              <div class="metric-label">🏠 私用分除外（自己負担精算額）</div>
-              <div class="metric-value" id="resPrivMain">0.0 L / ¥0</div>
-              <div class="metric-sub" id="resPrivSub">経理精算時に控除・返金する金額</div>
+            <div class="metric-box">
+              <div class="metric-label">⛽ 算定ガソリン量</div>
+              <div class="metric-value" id="resBizLiters" style="font-size:1.15rem;color:#38bdf8;">0.0 L</div>
+              <div class="metric-sub">距離 ÷ 燃費</div>
+            </div>
+            <div class="metric-box" style="background:rgba(56, 189, 248, 0.18);border-color:rgba(56, 189, 248, 0.5);">
+              <div class="metric-label">💴 算定ガソリン代</div>
+              <div class="metric-value" id="resBizYen" style="font-size:1.3rem;color:#fde047;">¥0</div>
+              <div class="metric-sub" id="resBizSub">算定L × 単価</div>
             </div>
           </div>
+
+          <!-- Optional actual refueling comparison -->
+          <details style="margin-top:10px;font-size:0.78rem;color:#cbd5e1;">
+            <summary style="cursor:pointer;font-weight:700;">➕ （任意）実際の給油レシート金額・給油量と照合して私用差額を出す場合はこちら</summary>
+            <div class="form-grid" style="margin-top:8px;">
+              <div class="form-group">
+                <label style="color:#cbd5e1;">実際の給油量 (L)</label>
+                <input type="number" id="mode1ActualLiters" step="0.1" min="0" placeholder="例: 20.0" oninput="recalcFuelMode1()" />
+              </div>
+              <div class="form-group">
+                <label style="color:#cbd5e1;">または実際の給油総額 (円)</label>
+                <input type="number" id="mode1ActualYen" step="10" min="0" placeholder="自動換算" oninput="recalcFuelMode1FromYen()" />
+              </div>
+            </div>
+            <div id="privDiffWrap" class="hidden" style="margin-top:6px;background:rgba(239,68,68,0.22);border:1px solid rgba(248,113,113,0.45);padding:8px 10px;border-radius:8px;color:#fecaca;font-weight:700;">
+              🏠 私用分差額（実給油 − 算定分）: <span id="resPrivMain">0.0 L / ¥0</span>
+            </div>
+          </details>
         </div>
 
-        <!-- Save to Fuel Settlement Deadline Records Form -->
+        <!-- Step 3: 給油日の記録フォーム -->
         <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:14px;">
-          <div style="font-size:0.84rem;font-weight:800;margin-bottom:8px;">
-            📥 この計算結果を「精算期限管理リスト」に登録（3日前に自動通知）
+          <div style="font-size:0.86rem;font-weight:800;margin-bottom:8px;">
+            📅 3. 給油日の記録を保存（内訳と算定金額を記録）
           </div>
           <div class="form-grid">
             <div class="form-group">
-              <label>給油日 (useDate)</label>
+              <label>⛽ 給油日</label>
               <input type="date" id="newFuelUseDate" onchange="autoSetFuelDeadline()" />
             </div>
             <div class="form-group">
-              <label>精算期限日 (deadline)</label>
+              <label>🔔 精算・確認期限日（3日前に通知）</label>
               <input type="date" id="newFuelDeadline" />
             </div>
           </div>
-          <div class="form-group" style="margin-bottom:10px;">
-            <label>メモ（給油状況・除外理由など）</label>
-            <input type="text" id="newFuelMemo" placeholder="例: 先週末給油分（土日ドライブ2日分を除外）" />
+          <div class="form-group" style="margin-bottom:8px;">
+            <label>📝 行った場所の内訳・メモ（空欄なら下の行き先×回数が自動入力されます）</label>
+            <input type="text" id="newFuelMemo" placeholder="自動で行き先×回数の内訳が記録されます" />
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;font-size:0.78rem;color:var(--text-sub);">
+            <input type="checkbox" id="resetCountsAfterSave" style="width:15px;height:15px;" />
+            <label for="resetCountsAfterSave" style="cursor:pointer;">記録を保存したあと、行き先の回数を0にリセットする</label>
           </div>
           <button class="btn btn-primary" style="width:100%;" onclick="saveNewFuelRecord()">
-            💾 ガソリン精算記録を保存してメンバー間で同期
+            💾 給油日と算定ガソリン代を記録する
           </button>
         </div>
 
         <!-- Registered Fuel Settlement Records List -->
         <div style="margin-top:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <h3 style="font-size:0.95rem;font-weight:800;">📋 登録済みガソリン精算期限リスト</h3>
+            <h3 style="font-size:0.95rem;font-weight:800;">📋 給油日の記録履歴・精算期限リスト</h3>
             <span style="font-size:0.75rem;color:var(--text-muted);" id="fuelRecordsCountLabel"></span>
           </div>
           <div class="fuel-records-list" id="fuelRecordsContainer">
@@ -1455,19 +1410,19 @@
   <!-- Route Preset Add/Edit Modal -->
   <div class="modal-backdrop" id="presetModal">
     <div class="modal-card">
-      <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:12px;" id="presetModalTitle">🛣️ 固定ルート登録・編集</h3>
+      <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:12px;" id="presetModalTitle">📍 行き先（距離・回数）の登録・編集</h3>
       <input type="hidden" id="modalPresetId" />
       <div class="form-group" style="margin-bottom:10px;">
-        <label>ルート名（アイコン付き推奨）</label>
+        <label>行き先名</label>
         <input type="text" id="modalPresetName" placeholder="例: 🏢 オフィス通勤（往復）" />
       </div>
       <div class="form-grid">
         <div class="form-group">
-          <label>往復距離 (km)</label>
+          <label>1回あたりの距離 (km)</label>
           <input type="number" id="modalPresetKm" step="0.5" min="0.5" value="20" />
         </div>
         <div class="form-group">
-          <label>初期回数</label>
+          <label>行った回数</label>
           <input type="number" id="modalPresetCount" step="1" min="0" value="1" />
         </div>
       </div>
@@ -1926,44 +1881,102 @@
       }
     }
 
-    function selectFuelMode(modeNum) {
-      currentFuelMode = modeNum;
-      document.getElementById("modeTab1").classList.toggle("active", modeNum === 1);
-      document.getElementById("modeTab2").classList.toggle("active", modeNum === 2);
-      document.getElementById("modeTab3").classList.toggle("active", modeNum === 3);
-
-      document.getElementById("fuelModePanel1").classList.toggle("hidden", modeNum !== 1);
-      document.getElementById("fuelModePanel2").classList.toggle("hidden", modeNum !== 2);
-      document.getElementById("fuelModePanel3").classList.toggle("hidden", modeNum !== 3);
-
-      recalcCurrentFuelMode();
-    }
-
     function renderPresets() {
       const container = document.getElementById("presetListContainer");
       if (!appState.presets || appState.presets.length === 0) {
-        container.innerHTML = `<p style="font-size:0.8rem;color:var(--text-muted);">固定ルートがありません。「＋ ルート追加」から追加してください。</p>`;
+        container.innerHTML = `<p style="font-size:0.8rem;color:var(--text-muted);">行き先が登録されていません。上の入力欄または「＋ 行き先追加」から登録してください。</p>`;
         return;
       }
 
+      const eff = Number(appState.settings.efficiency) || 15;
+      const price = Number(appState.settings.fuelPrice) || 175;
+
       container.innerHTML = appState.presets.map(p => {
-        const subTotalKm = (Number(p.km) * Number(p.count)).toFixed(1).replace(/\.0$/, "");
+        const km = Number(p.km) || 0;
+        const cnt = Number(p.count) || 0;
+        const subTotalKm = +(km * cnt).toFixed(1);
+        const subLiters = +(subTotalKm / eff).toFixed(2);
+        const subYen = Math.round(subLiters * price);
+
         return `
-          <div class="preset-item">
+          <div class="preset-item" style="${cnt > 0 ? 'border-color:#93c5fd;background:#eff6ff;' : ''}">
             <div class="preset-info">
               <div class="preset-name">${escapeHtml(p.name)}</div>
-              <div class="preset-km">往復 ${p.km} km × ${p.count} 回 ＝ <strong>${subTotalKm} km</strong></div>
+              <div class="preset-km">
+                距離 <strong>${km} km</strong> × <strong>${cnt} 回</strong> ＝ <strong>${subTotalKm} km</strong>
+                <span style="color:var(--primary-dark);font-weight:700;margin-left:6px;">（約 ¥${subYen.toLocaleString()} / ${subLiters}L）</span>
+              </div>
             </div>
             <div class="counter-controls">
-              <button class="btn-counter" onclick="updatePresetCount('${escapeJs(p.id)}', ${Number(p.count) - 1})">−</button>
-              <span class="counter-val">${p.count}回</span>
-              <button class="btn-counter" onclick="updatePresetCount('${escapeJs(p.id)}', ${Number(p.count) + 1})">＋</button>
-              <button class="btn btn-outline btn-sm" onclick="openPresetModal('${escapeJs(p.id)}')">✏️</button>
-              <button class="btn btn-danger-ghost btn-sm" onclick="deletePreset('${escapeJs(p.id)}')">🗑️</button>
+              <button class="btn-counter" onclick="updatePresetCount('${escapeJs(p.id)}', ${cnt - 1})">−</button>
+              <input
+                type="number"
+                min="0"
+                max="999"
+                value="${cnt}"
+                onchange="updatePresetCount('${escapeJs(p.id)}', parseInt(this.value, 10) || 0)"
+                style="width:52px;text-align:center;font-weight:800;font-size:0.92rem;padding:4px;border:1px solid #cbd5e1;border-radius:6px;"
+                title="回数を直接入力"
+              />
+              <span style="font-size:0.76rem;font-weight:700;color:var(--text-sub);margin-left:-4px;">回</span>
+              <button class="btn-counter" onclick="updatePresetCount('${escapeJs(p.id)}', ${cnt + 1})">＋</button>
+              <button class="btn btn-outline btn-sm" onclick="openPresetModal('${escapeJs(p.id)}')" title="行き先・距離を編集">✏️</button>
+              <button class="btn btn-danger-ghost btn-sm" onclick="deletePreset('${escapeJs(p.id)}')" title="削除">🗑️</button>
             </div>
           </div>
         `;
       }).join("");
+    }
+
+    async function quickAddPreset() {
+      const nameEl = document.getElementById("quickPresetName");
+      const kmEl = document.getElementById("quickPresetKm");
+      const name = (nameEl.value || "").trim();
+      const km = parseFloat(kmEl.value);
+
+      if (!name) {
+        alert("行き先名を入力してください（例: 🏢 オフィス通勤）");
+        nameEl.focus();
+        return;
+      }
+      if (isNaN(km) || km <= 0) {
+        alert("距離 (km) を入力してください（例: 24）");
+        kmEl.focus();
+        return;
+      }
+
+      const res = await fetch("/api/presets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, km, count: 1 })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        nameEl.value = "";
+        kmEl.value = "";
+        renderApp();
+        showToast(`📍 行き先「${name} (${km}km)」を追加しました！`);
+      }
+    }
+
+    async function resetAllPresetCounts() {
+      if (!appState.presets || appState.presets.length === 0) return;
+      for (const p of appState.presets) {
+        if (Number(p.count) !== 0) {
+          await fetch(`/api/presets/${encodeURIComponent(p.id)}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ count: 0 })
+          });
+        }
+      }
+      const res = await fetch("/api/state");
+      if (res.ok) {
+        appState = await res.json();
+        renderApp();
+        showToast("🔄 すべての行き先の回数を 0回 にリセットしました");
+      }
     }
 
     async function updatePresetCount(presetId, newCount) {
@@ -1985,16 +1998,16 @@
       if (presetId) {
         const p = appState.presets.find(x => x.id === presetId);
         if (!p) return;
-        document.getElementById("presetModalTitle").textContent = "🛣️ 固定ルートの編集";
+        document.getElementById("presetModalTitle").textContent = "📍 行き先（距離・回数）の編集";
         document.getElementById("modalPresetId").value = p.id;
         document.getElementById("modalPresetName").value = p.name;
         document.getElementById("modalPresetKm").value = p.km;
         document.getElementById("modalPresetCount").value = p.count;
       } else {
-        document.getElementById("presetModalTitle").textContent = "🛣️ 固定ルートの追加";
+        document.getElementById("presetModalTitle").textContent = "📍 新しい行き先の登録";
         document.getElementById("modalPresetId").value = "";
         document.getElementById("modalPresetName").value = "";
-        document.getElementById("modalPresetKm").value = 30;
+        document.getElementById("modalPresetKm").value = 20;
         document.getElementById("modalPresetCount").value = 1;
       }
       modal.classList.add("open");
@@ -2012,7 +2025,7 @@
         count: parseInt(document.getElementById("modalPresetCount").value, 10) || 0
       };
       if (!payload.name) {
-        alert("ルート名を入力してください");
+        alert("行き先名を入力してください");
         return;
       }
       const url = id ? `/api/presets/${encodeURIComponent(id)}` : "/api/presets";
@@ -2027,12 +2040,12 @@
         appState = data.state;
         closePresetModal();
         renderApp();
-        showToast("🛣️ 固定ルートを保存しました");
+        showToast("📍 行き先を保存しました");
       }
     }
 
     async function deletePreset(presetId) {
-      if (!confirm("この固定ルートを削除しますか？")) return;
+      if (!confirm("この行き先を削除しますか？")) return;
       const res = await fetch(`/api/presets/${encodeURIComponent(presetId)}`, { method: "DELETE" });
       if (res.ok) {
         const data = await res.json();
@@ -2041,21 +2054,21 @@
       }
     }
 
-    // Recalculate Fuel Mode 1, 2, 3
+    // Recalculate Fuel Cost from Destination × Count
     function recalcCurrentFuelMode() {
-      if (currentFuelMode === 1) recalcFuelMode1();
-      else if (currentFuelMode === 2) recalcFuelMode2();
-      else recalcFuelMode3("slider");
+      recalcFuelMode1();
     }
 
     function recalcFuelMode1FromYen() {
       const price = Number(appState.settings.fuelPrice) || 175;
-      const yenVal = parseFloat(document.getElementById("mode1ActualYen").value);
+      const yenVal = parseFloat(document.getElementById("mode1ActualYen")?.value);
       const litersEl = document.getElementById("mode1ActualLiters");
-      if (!isNaN(yenVal) && yenVal > 0) {
-        litersEl.value = (yenVal / price).toFixed(2);
-      } else {
-        litersEl.value = "";
+      if (litersEl) {
+        if (!isNaN(yenVal) && yenVal > 0) {
+          litersEl.value = (yenVal / price).toFixed(2);
+        } else {
+          litersEl.value = "";
+        }
       }
       recalcFuelMode1(false);
     }
@@ -2070,119 +2083,38 @@
         const c = Number(p.count) || 0;
         if (c > 0) {
           totalBizKm += Number(p.km) * c;
-          activeNames.push(`${p.name}×${c}`);
+          activeNames.push(`${p.name}(${p.km}km)×${c}回`);
         }
       }
 
       const bizLiters = +(totalBizKm / eff).toFixed(2);
       const bizYen = Math.round(bizLiters * price);
 
-      const actualLitersVal = parseFloat(document.getElementById("mode1ActualLiters").value);
+      const actualLitersEl = document.getElementById("mode1ActualLiters");
+      const actualYenEl = document.getElementById("mode1ActualYen");
+      const actualLitersVal = actualLitersEl ? parseFloat(actualLitersEl.value) : NaN;
       let privLiters = 0;
       let privYen = 0;
 
       if (!isNaN(actualLitersVal) && actualLitersVal > 0) {
-        if (syncYen) {
-          document.getElementById("mode1ActualYen").value = Math.round(actualLitersVal * price);
+        if (syncYen && actualYenEl) {
+          actualYenEl.value = Math.round(actualLitersVal * price);
         }
         privLiters = Math.max(0, +(actualLitersVal - bizLiters).toFixed(2));
         privYen = Math.round(privLiters * price);
-      } else if (syncYen) {
-        document.getElementById("mode1ActualYen").value = "";
+      } else if (syncYen && actualYenEl) {
+        actualYenEl.value = "";
       }
 
       currentCalcResult = {
-        modeLabel: "① 固定ルート合算",
+        modeLabel: "行き先×回数算定",
+        activeRoutesCount: activeNames.length,
         bizKm: +totalBizKm.toFixed(1),
         bizLiters,
         bizYen,
         privLiters,
         privYen,
-        defaultMemo: activeNames.length ? `固定ルート合算 (${activeNames.join(" / ")})` : "固定ルート合算"
-      };
-      updateCalcResultBox();
-    }
-
-    function recalcFuelMode2() {
-      const eff = Number(appState.settings.efficiency) || 15;
-      const price = Number(appState.settings.fuelPrice) || 175;
-      const bizDays = parseFloat(document.getElementById("mode2BizDays").value) || 0;
-      const avgKm = parseFloat(document.getElementById("mode2AvgKm").value) || 0;
-
-      const bizKm = +(bizDays * avgKm).toFixed(1);
-      const bizLiters = +(bizKm / eff).toFixed(2);
-      const bizYen = Math.round(bizLiters * price);
-
-      currentCalcResult = {
-        modeLabel: "② 定量・定額ストップ給油",
-        bizKm,
-        bizLiters,
-        bizYen,
-        privLiters: 0,
-        privYen: 0,
-        defaultMemo: `定量ストップ給油（業務${bizDays}日×平均${avgKm}km）`
-      };
-      updateCalcResultBox();
-    }
-
-    function setMode3Preset(bizDays, privDays) {
-      document.getElementById("sliderMode3BizDays").value = bizDays;
-      document.getElementById("sliderMode3PrivDays").value = privDays;
-      recalcFuelMode3("slider");
-    }
-
-    function recalcFuelMode3(source) {
-      const eff = Number(appState.settings.efficiency) || 15;
-      const price = Number(appState.settings.fuelPrice) || 175;
-
-      const litersInput = document.getElementById("mode3TotalLiters");
-      const yenInput = document.getElementById("mode3TotalYen");
-
-      let totalLiters = parseFloat(litersInput.value) || 0;
-      let totalYen = parseFloat(yenInput.value) || 0;
-
-      if (source === "liters") {
-        totalYen = Math.round(totalLiters * price);
-        yenInput.value = totalYen;
-      } else if (source === "yen") {
-        totalLiters = +(totalYen / price).toFixed(2);
-        litersInput.value = totalLiters;
-      } else {
-        totalYen = Math.round(totalLiters * price);
-        if (document.activeElement !== yenInput) yenInput.value = totalYen;
-      }
-
-      const bizDays = parseInt(document.getElementById("sliderMode3BizDays").value, 10) || 1;
-      const privDays = parseInt(document.getElementById("sliderMode3PrivDays").value, 10) || 0;
-      const totalDays = Math.max(1, bizDays + privDays);
-
-      const bizRatio = bizDays / totalDays;
-      const privRatio = privDays / totalDays;
-
-      document.getElementById("lblMode3BizDays").textContent = bizDays;
-      document.getElementById("lblMode3PrivDays").textContent = privDays;
-      document.getElementById("sliderBizVal").textContent = bizDays;
-      document.getElementById("sliderPrivVal").textContent = privDays;
-      document.getElementById("lblMode3BizPct").textContent = Math.round(bizRatio * 100);
-      document.getElementById("lblMode3PrivPct").textContent = Math.round(privRatio * 100);
-
-      document.getElementById("barMode3Biz").style.width = `${(bizRatio * 100).toFixed(1)}%`;
-      document.getElementById("barMode3Priv").style.width = `${(privRatio * 100).toFixed(1)}%`;
-
-      const bizLiters = +(totalLiters * bizRatio).toFixed(2);
-      const privLiters = +(totalLiters - bizLiters).toFixed(2);
-      const bizKm = +(bizLiters * eff).toFixed(1);
-      const bizYen = Math.round(bizLiters * price);
-      const privYen = Math.round(privLiters * price);
-
-      currentCalcResult = {
-        modeLabel: "③ 満タン後曜日按分",
-        bizKm,
-        bizLiters,
-        bizYen,
-        privLiters,
-        privYen,
-        defaultMemo: `満タン給油分（業務${bizDays}日 : 休日私用${privDays}日按分）`
+        defaultMemo: activeNames.length ? activeNames.join(" ／ ") : "給油記録"
       };
       updateCalcResultBox();
     }
@@ -2190,21 +2122,36 @@
     function updateCalcResultBox() {
       const eff = Number(appState.settings.efficiency) || 15;
       const price = Number(appState.settings.fuelPrice) || 175;
-      document.getElementById("calcResultModeTitle").textContent = `${currentCalcResult.modeLabel} 算出結果`;
-      document.getElementById("calcResultFormulaHint").textContent = `燃費 ${eff}km/L・単価 ${price}円/L`;
+      const hintEl = document.getElementById("calcResultFormulaHint");
+      if (hintEl) hintEl.textContent = `燃費 ${eff}km/L・単価 ${price}円/L`;
 
-      document.getElementById("resBizMain").textContent = `${currentCalcResult.bizLiters} L / ¥${currentCalcResult.bizYen.toLocaleString()}`;
-      if (currentFuelMode === 2) {
-        document.getElementById("resBizSub").textContent = `🛑 給油機ストップ目安: ${currentCalcResult.bizLiters} L（業務距離 ${currentCalcResult.bizKm} km）`;
-      } else {
-        document.getElementById("resBizSub").textContent = `業務換算走行距離: ${currentCalcResult.bizKm} km`;
+      const kmEl = document.getElementById("resTotalKm");
+      if (kmEl) kmEl.textContent = `${currentCalcResult.bizKm} km`;
+
+      const cntEl = document.getElementById("resActiveRoutesCount");
+      if (cntEl) cntEl.textContent = `対象行き先 ${currentCalcResult.activeRoutesCount || 0} ヶ所`;
+
+      const litersEl = document.getElementById("resBizLiters");
+      if (litersEl) litersEl.textContent = `${currentCalcResult.bizLiters} L`;
+
+      const yenEl = document.getElementById("resBizYen");
+      if (yenEl) yenEl.textContent = `¥${currentCalcResult.bizYen.toLocaleString()}`;
+
+      const privWrap = document.getElementById("privDiffWrap");
+      const privMain = document.getElementById("resPrivMain");
+      if (privWrap && privMain) {
+        if (currentCalcResult.privYen > 0) {
+          privWrap.classList.remove("hidden");
+          privMain.textContent = `${currentCalcResult.privLiters} L / ¥${currentCalcResult.privYen.toLocaleString()}`;
+        } else {
+          privWrap.classList.add("hidden");
+        }
       }
 
-      document.getElementById("resPrivMain").textContent = `${currentCalcResult.privLiters} L / ¥${currentCalcResult.privYen.toLocaleString()}`;
-      document.getElementById("resPrivSub").textContent =
-        currentCalcResult.privYen > 0
-          ? `経理精算時に私用分として控除・自己負担する金額`
-          : `私用分の混入なし（全額業務計上可能）`;
+      const memoInput = document.getElementById("newFuelMemo");
+      if (memoInput) {
+        memoInput.placeholder = currentCalcResult.defaultMemo || "行った場所の内訳・メモ";
+      }
     }
 
     function autoSetFuelDeadline() {
@@ -2223,7 +2170,7 @@
       const payload = {
         useDate,
         deadline,
-        mode: currentCalcResult.modeLabel,
+        mode: "📍 行き先×回数算定",
         memo,
         bizKm: currentCalcResult.bizKm,
         bizLiters: currentCalcResult.bizLiters,
@@ -2241,8 +2188,13 @@
         const data = await res.json();
         appState = data.state;
         memoInput.value = "";
-        renderApp();
-        showToast("⛽ ガソリン精算記録を登録しました！");
+        const shouldReset = document.getElementById("resetCountsAfterSave")?.checked;
+        if (shouldReset) {
+          await resetAllPresetCounts();
+        } else {
+          renderApp();
+        }
+        showToast("⛽ 給油日と算定ガソリン代を記録しました！");
       }
     }
 
@@ -2253,7 +2205,7 @@
       countLbl.textContent = `全 ${records.length} 件`;
 
       if (records.length === 0) {
-        container.innerHTML = `<p style="font-size:0.82rem;color:var(--text-muted);">精算記録はありません。</p>`;
+        container.innerHTML = `<p style="font-size:0.82rem;color:var(--text-muted);">給油記録はまだありません。</p>`;
         return;
       }
 
@@ -2261,54 +2213,59 @@
         const rem = diffDays(r.deadline);
         const isSettled = Number(r.settled) === 1;
         const isUrgent = !isSettled && rem <= 3;
+        const hasPriv = Number(r.privYen) > 0;
 
         let badgeHtml = "";
         if (isSettled) {
-          badgeHtml = `<span class="deadline-status-pill status-safe">✅ 精算完了</span>`;
+          badgeHtml = `<span class="deadline-status-pill status-safe">✅ 精算・確認済</span>`;
         } else if (rem < 0) {
-          badgeHtml = `<span class="deadline-status-pill status-danger">🚨 精算期限 ${Math.abs(rem)}日超過</span>`;
+          badgeHtml = `<span class="deadline-status-pill status-danger">🚨 期限 ${Math.abs(rem)}日超過</span>`;
         } else if (rem === 0) {
-          badgeHtml = `<span class="deadline-status-pill status-danger">🚨 本日精算期限！</span>`;
+          badgeHtml = `<span class="deadline-status-pill status-danger">🚨 本日期限！</span>`;
         } else if (rem <= 3) {
-          badgeHtml = `<span class="deadline-status-pill status-warning">⏰ 精算期限まであと ${rem} 日</span>`;
+          badgeHtml = `<span class="deadline-status-pill status-warning">⏰ 期限まであと ${rem} 日</span>`;
         } else {
           badgeHtml = `<span class="deadline-status-pill status-safe">あと ${rem} 日</span>`;
         }
 
-        const lineText = `【社用ガソリンカード精算リマインド】\n⛽ 給油日: ${r.useDate}（${r.mode}）\n📅 精算期限: ${r.deadline}\n📝 メモ: ${r.memo}\n🏢 業務経費計上: ${r.bizKm}km / ${r.bizLiters}L / ¥${Number(r.bizYen).toLocaleString()}\n🏠 私用除外(自己負担): ${r.privLiters}L / ¥${Number(r.privYen).toLocaleString()}`;
+        const lineText = `【ガソリン給油・算定記録】\n⛽ 給油日: ${r.useDate}\n📅 精算期限: ${r.deadline}\n📍 行き先内訳: ${r.memo}\n💴 算定ガソリン代: ¥${Number(r.bizYen).toLocaleString()}（${r.bizKm}km / ${r.bizLiters}L）` + (hasPriv ? `\n🏠 私用差額: ¥${Number(r.privYen).toLocaleString()}（${r.privLiters}L）` : "");
         const gcalUrl = buildGoogleCalendarUrl(
-          `⛽ ガソリンカード精算期限 (私用控除 ¥${Number(r.privYen).toLocaleString()})`,
+          `⛽ ガソリン精算期限 (算定 ¥${Number(r.bizYen).toLocaleString()})`,
           r.deadline,
-          `給油日: ${r.useDate}\nモード: ${r.mode}\nメモ: ${r.memo}\n業務経費: ${r.bizKm}km (${r.bizLiters}L / ¥${Number(r.bizYen).toLocaleString()})\n私用控除額: ${r.privLiters}L / ¥${Number(r.privYen).toLocaleString()}`
+          `給油日: ${r.useDate}\n行き先内訳: ${r.memo}\n算定ガソリン代: ¥${Number(r.bizYen).toLocaleString()} (${r.bizKm}km / ${r.bizLiters}L)`
         );
 
         return `
           <div class="fuel-record-card ${isUrgent ? 'is-urgent' : ''} ${isSettled ? 'is-settled' : ''}">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;">
               <div>
-                <div style="font-size:0.76rem;font-weight:700;color:var(--primary);">${escapeHtml(r.mode)}</div>
-                <div style="font-size:0.92rem;font-weight:800;">${escapeHtml(r.memo || 'ガソリン給油記録')}</div>
-                <div style="font-size:0.78rem;color:var(--text-sub);margin-top:2px;">
-                  ⛽ 給油日: ${escapeHtml(r.useDate)} → 🎯 <strong>精算期限: ${escapeHtml(r.deadline)}</strong>
+                <div style="font-size:0.82rem;font-weight:800;color:var(--primary-dark);">
+                  ⛽ 給油日: ${escapeHtml(r.useDate)}
+                  <span style="color:var(--text-muted);font-weight:600;margin-left:8px;">（期限: ${escapeHtml(r.deadline)}）</span>
+                </div>
+                <div style="font-size:0.88rem;font-weight:700;margin-top:4px;color:var(--text-main);">
+                  📍 ${escapeHtml(r.memo || '給油記録')}
                 </div>
               </div>
               ${badgeHtml}
             </div>
 
-            <div class="record-split-pills">
-              <div class="split-pill split-biz">
-                <div style="font-size:0.72rem;font-weight:700;">🏢 業務経費計上分</div>
-                <div style="font-size:0.95rem;font-weight:800;">¥${Number(r.bizYen).toLocaleString()} <span style="font-size:0.76rem;font-weight:600;">(${r.bizLiters} L / ${r.bizKm} km)</span></div>
+            <div class="record-split-pills" style="${hasPriv ? '' : 'grid-template-columns:1fr;'}">
+              <div class="split-pill split-biz" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                <span style="font-size:0.78rem;font-weight:700;">💴 算定ガソリン代（走行距離 ${r.bizKm} km ／ ${r.bizLiters} L）</span>
+                <span style="font-size:1.08rem;font-weight:800;">¥${Number(r.bizYen).toLocaleString()}</span>
               </div>
-              <div class="split-pill split-priv">
-                <div style="font-size:0.72rem;font-weight:700;">🏠 私用除外（自己負担控除額）</div>
-                <div style="font-size:0.95rem;font-weight:800;">¥${Number(r.privYen).toLocaleString()} <span style="font-size:0.76rem;font-weight:600;">(${r.privLiters} L)</span></div>
-              </div>
+              ${hasPriv ? `
+                <div class="split-pill split-priv">
+                  <div style="font-size:0.72rem;font-weight:700;">🏠 私用分差額</div>
+                  <div style="font-size:0.95rem;font-weight:800;">¥${Number(r.privYen).toLocaleString()} <span style="font-size:0.76rem;font-weight:600;">(${r.privLiters} L)</span></div>
+                </div>
+              ` : ''}
             </div>
 
             <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;">
               <button class="btn ${isSettled ? 'btn-outline' : 'btn-emerald'} btn-sm" onclick="toggleFuelSettled(${r.id}, ${isSettled ? 0 : 1})">
-                ${isSettled ? '↩️ 未精算に戻す' : '✅ 精算済にする'}
+                ${isSettled ? '↩️ 未精算に戻す' : '✅ 精算・確認済にする'}
               </button>
               <button class="btn btn-line btn-sm" onclick="copyForLineShare(${ JSON.stringify(lineText).replace(/"/g, '&quot;') }, false)">
                 💬 LINE共有コピー
