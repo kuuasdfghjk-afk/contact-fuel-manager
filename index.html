@@ -216,8 +216,8 @@
 
     .nav-tabs {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
       background: #e2e8f0;
       padding: 5px;
       border-radius: 14px;
@@ -989,6 +989,199 @@
     .hidden {
       display: none !important;
     }
+
+    html, body {
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+
+    .quick-add-preset-bar {
+      display: grid;
+      grid-template-columns: 1fr 110px auto;
+      gap: 8px;
+      background: #f8fafc;
+      padding: 10px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+
+    .calc-metrics-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .fuel-date-form-grid {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    /* Smartphone Responsive Layout */
+    @media (max-width: 640px) {
+      .app-header {
+        position: relative;
+        padding: 12px 12px 10px;
+      }
+
+      .brand-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+      }
+
+      .brand-title h1 {
+        font-size: 0.96rem;
+        line-height: 1.25;
+      }
+
+      .header-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+
+      .btn-header {
+        padding: 7px 6px;
+        font-size: 0.72rem;
+        justify-content: center;
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      .urgent-banner,
+      .nav-tabs-wrap,
+      .main-container {
+        padding: 0 10px;
+        margin-top: 10px;
+      }
+
+      .nav-tabs {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 4px;
+        padding: 4px;
+      }
+
+      .nav-tab {
+        padding: 8px 4px;
+        font-size: 0.74rem;
+        white-space: nowrap;
+      }
+
+      .panel-card {
+        padding: 14px 12px;
+        border-radius: 14px;
+        margin-bottom: 14px;
+      }
+
+      .panel-title {
+        font-size: 0.96rem;
+      }
+
+      .panel-subtitle {
+        font-size: 0.72rem;
+      }
+
+      .member-card {
+        padding: 12px;
+      }
+
+      .member-top {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+
+      .deadline-status-pill {
+        align-self: flex-start;
+        font-size: 0.75rem;
+      }
+
+      .member-controls-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .member-controls-row .btn {
+        width: 100%;
+      }
+
+      .date-quick-edit {
+        justify-content: space-between;
+        background: #f8fafc;
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+      }
+
+      .share-actions-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+
+      .share-actions-row > div {
+        grid-column: 1 / -1;
+        margin-left: 0 !important;
+        justify-content: flex-end;
+      }
+
+      .quick-add-preset-bar {
+        grid-template-columns: 1fr auto;
+      }
+
+      .quick-add-preset-bar > input[type="text"] {
+        grid-column: 1 / -1;
+      }
+
+      .preset-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        padding: 10px;
+      }
+
+      .counter-controls {
+        justify-content: space-between;
+        width: 100%;
+        padding-top: 6px;
+        border-top: 1px dashed #cbd5e1;
+      }
+
+      .calc-metrics-3col {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .calc-metrics-3col .metric-highlight {
+        grid-column: 1 / -1;
+      }
+
+      .form-grid,
+      .fuel-date-form-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea,
+      .quick-add-preset-bar input {
+        font-size: 16px !important;
+      }
+
+      .fuel-record-card {
+        padding: 12px;
+      }
+
+      .toast-container {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -999,26 +1192,26 @@
       <div class="brand-row">
         <img src="./icon.svg" alt="App Icon" class="brand-icon" />
         <div class="brand-title">
-          <h1>2WEEKコンタクト＆社用ガソリン期限管理</h1>
+          <h1>2WEEKコンタクト＆ガソリン管理</h1>
           <p>
             <span class="sync-badge" id="syncBadge">
               <span class="sync-dot"></span>
-              <span id="syncStatusText">リアルタイム同期中</span>
+              <span id="syncStatusText">クラウド同期中</span>
             </span>
-            <span id="lanShareInfo"></span>
+            <span id="lanShareInfo" style="font-size:0.7rem;"></span>
           </p>
         </div>
       </div>
 
       <div class="header-actions">
         <button class="btn-header" id="btnEnableWebPush" onclick="subscribeWebPush()">
-          🔔 Web Push通知を有効化
+          🔔 通知ON
         </button>
         <button class="btn-header alert-trigger" onclick="runCronTestNow(false)">
-          ⚡ 朝8:00通知を今すぐテスト送信
+          ⚡ テスト通知
         </button>
         <button class="btn-header" onclick="switchView('notifications')">
-          ⚙️ 通知設定・履歴
+          ⚙️ 通知設定
         </button>
       </div>
     </div>
@@ -1031,13 +1224,16 @@
   <div class="nav-tabs-wrap">
     <div class="nav-tabs">
       <button class="nav-tab active" id="tabBtnAll" onclick="switchView('all')">
-        📊 統合ダッシュボード（両方表示）
+        📊 すべて
       </button>
       <button class="nav-tab" id="tabBtnContacts" onclick="switchView('contacts')">
-        👁️ 2WEEKコンタクト管理 <span class="tab-badge hidden" id="badgeContacts">0</span>
+        👁️ コンタクト <span class="tab-badge hidden" id="badgeContacts">0</span>
+      </button>
+      <button class="nav-tab" id="tabBtnFuel" onclick="switchView('fuel')">
+        ⛽ ガソリン
       </button>
       <button class="nav-tab" id="tabBtnNotifications" onclick="switchView('notifications')">
-        🔔 自動通知 (メール / Web Push) 設定
+        ⚙️ 設定・履歴
       </button>
     </div>
   </div>
@@ -1108,13 +1304,13 @@
           </div>
 
           <!-- Quick Inline Destination Registration Bar -->
-          <div style="display:grid;grid-template-columns:1fr 100px auto;gap:6px;background:#f8fafc;padding:8px 10px;border:1px dashed #cbd5e1;border-radius:10px;margin-bottom:10px;align-items:center;">
-            <input type="text" id="quickPresetName" placeholder="新しい行き先名（例: 🏬 C営業所 往復）" style="padding:7px 10px;border:1px solid #cbd5e1;border-radius:8px;font-size:0.82rem;" />
+          <div class="quick-add-preset-bar">
+            <input type="text" id="quickPresetName" placeholder="新しい行き先名（例: 🏬 C営業所 往復）" style="padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;font-size:0.84rem;width:100%;" />
             <div style="display:flex;align-items:center;gap:4px;">
-              <input type="number" id="quickPresetKm" placeholder="距離" step="0.5" min="0.5" style="width:100%;padding:7px 8px;border:1px solid #cbd5e1;border-radius:8px;font-size:0.82rem;" />
-              <span style="font-size:0.75rem;color:var(--text-muted);font-weight:700;">km</span>
+              <input type="number" id="quickPresetKm" placeholder="距離" step="0.5" min="0.5" style="width:100%;padding:8px 8px;border:1px solid #cbd5e1;border-radius:8px;font-size:0.84rem;" />
+              <span style="font-size:0.78rem;color:var(--text-muted);font-weight:700;">km</span>
             </div>
-            <button class="btn btn-primary btn-sm" onclick="quickAddPreset()">追加</button>
+            <button class="btn btn-primary btn-sm" style="padding:8px 14px;" onclick="quickAddPreset()">＋追加</button>
           </div>
 
           <div class="preset-list" id="presetListContainer">
@@ -1124,25 +1320,25 @@
 
         <!-- Step 2: 行き先×回数を基準にしたシンプルなガソリン代算定結果 -->
         <div class="calc-result-card">
-          <div class="calc-result-header">
+          <div class="calc-result-header" style="flex-wrap:wrap;gap:4px;">
             <span id="calcResultModeTitle">💴 2. 行き先×回数からのガソリン代 算定結果</span>
             <span id="calcResultFormulaHint">燃費 15km/L・単価 175円/L</span>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;">
+          <div class="calc-metrics-3col">
+            <div class="metric-box metric-highlight" style="background:rgba(56, 189, 248, 0.18);border-color:rgba(56, 189, 248, 0.5);">
+              <div class="metric-label">💴 算定ガソリン代</div>
+              <div class="metric-value" id="resBizYen" style="font-size:1.35rem;color:#fde047;">¥0</div>
+              <div class="metric-sub" id="resBizSub">算定L × 単価</div>
+            </div>
             <div class="metric-box">
               <div class="metric-label">🛣️ 合計走行距離</div>
-              <div class="metric-value" id="resTotalKm" style="font-size:1.15rem;color:#e2e8f0;">0 km</div>
+              <div class="metric-value" id="resTotalKm" style="font-size:1.12rem;color:#e2e8f0;">0 km</div>
               <div class="metric-sub" id="resActiveRoutesCount">行き先 0ヶ所</div>
             </div>
             <div class="metric-box">
               <div class="metric-label">⛽ 算定ガソリン量</div>
-              <div class="metric-value" id="resBizLiters" style="font-size:1.15rem;color:#38bdf8;">0.0 L</div>
+              <div class="metric-value" id="resBizLiters" style="font-size:1.12rem;color:#38bdf8;">0.0 L</div>
               <div class="metric-sub">距離 ÷ 燃費</div>
-            </div>
-            <div class="metric-box" style="background:rgba(56, 189, 248, 0.18);border-color:rgba(56, 189, 248, 0.5);">
-              <div class="metric-label">💴 算定ガソリン代</div>
-              <div class="metric-value" id="resBizYen" style="font-size:1.3rem;color:#fde047;">¥0</div>
-              <div class="metric-sub" id="resBizSub">算定L × 単価</div>
             </div>
           </div>
 
@@ -1170,7 +1366,7 @@
           <div style="font-size:0.86rem;font-weight:800;margin-bottom:10px;">
             📅 3. 給油日の記録を保存（内訳と算定金額を記録）
           </div>
-          <div class="form-grid" style="grid-template-columns: 160px 1fr;">
+          <div class="fuel-date-form-grid">
             <div class="form-group">
               <label>⛽ 給油日</label>
               <input type="date" id="newFuelUseDate" />
@@ -1552,6 +1748,8 @@
 
       document.getElementById("tabBtnAll").classList.toggle("active", viewName === "all");
       document.getElementById("tabBtnContacts").classList.toggle("active", viewName === "contacts");
+      const tabFuel = document.getElementById("tabBtnFuel");
+      if (tabFuel) tabFuel.classList.toggle("active", viewName === "fuel");
       document.getElementById("tabBtnNotifications").classList.toggle("active", viewName === "notifications");
 
       if (viewName === "all") {
@@ -1565,6 +1763,12 @@
         grid.style.gridTemplateColumns = "1fr";
         secContacts.classList.remove("hidden");
         secFuel.classList.add("hidden");
+        secNotif.classList.add("hidden");
+      } else if (viewName === "fuel") {
+        grid.classList.remove("hidden");
+        grid.style.gridTemplateColumns = "1fr";
+        secContacts.classList.add("hidden");
+        secFuel.classList.remove("hidden");
         secNotif.classList.add("hidden");
       } else if (viewName === "notifications") {
         grid.classList.add("hidden");
@@ -2309,32 +2513,31 @@
 
         return `
           <div class="fuel-record-card" style="${isChecked ? 'border-color:#2563eb;background:#eff6ff;' : ''}">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
-              <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;flex:1;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
                 <input
                   type="checkbox"
                   ${isChecked ? "checked" : ""}
                   onchange="toggleFuelSelection(${numId}, this.checked)"
-                  style="width:18px;height:18px;margin-top:2px;flex-shrink:0;"
+                  style="width:18px;height:18px;flex-shrink:0;"
                 />
-                <div>
-                  <div style="font-size:0.84rem;font-weight:800;color:var(--primary-dark);">
-                    ⛽ 給油日: ${escapeHtml(r.useDate)}
-                  </div>
-                  <div style="font-size:0.9rem;font-weight:700;margin-top:3px;color:var(--text-main);">
-                    📍 ${escapeHtml(r.memo || '給油記録')}
-                  </div>
-                </div>
+                <span style="font-size:0.86rem;font-weight:800;color:var(--primary-dark);">
+                  ⛽ 給油日: ${escapeHtml(r.useDate)}
+                </span>
               </label>
 
               <div style="display:flex;gap:6px;align-items:center;">
                 <button class="btn btn-line btn-sm" onclick="copyForLineShare(${ JSON.stringify(lineText).replace(/"/g, '&quot;') }, false)">
-                  💬 LINE共有コピー
+                  💬 LINE共有
                 </button>
                 <button class="btn btn-danger-ghost btn-sm" onclick="deleteFuelRecord(${numId})" title="この記録を削除">
                   🗑️ 削除
                 </button>
               </div>
+            </div>
+
+            <div style="font-size:0.86rem;font-weight:700;margin-top:8px;color:var(--text-main);word-break:break-word;">
+              📍 ${escapeHtml(r.memo || '給油記録')}
             </div>
 
             <div class="record-split-pills" style="${hasPriv ? '' : 'grid-template-columns:1fr;'}margin-bottom:0;">
