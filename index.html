@@ -1167,25 +1167,21 @@
 
         <!-- Step 3: 給油日の記録フォーム -->
         <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:14px;">
-          <div style="font-size:0.86rem;font-weight:800;margin-bottom:8px;">
+          <div style="font-size:0.86rem;font-weight:800;margin-bottom:10px;">
             📅 3. 給油日の記録を保存（内訳と算定金額を記録）
           </div>
-          <div class="form-grid">
+          <div class="form-grid" style="grid-template-columns: 160px 1fr;">
             <div class="form-group">
               <label>⛽ 給油日</label>
-              <input type="date" id="newFuelUseDate" onchange="autoSetFuelDeadline()" />
+              <input type="date" id="newFuelUseDate" />
             </div>
             <div class="form-group">
-              <label>🔔 精算・確認期限日（3日前に通知）</label>
-              <input type="date" id="newFuelDeadline" />
+              <label>📝 行った場所の内訳・メモ（空欄なら行き先×回数を自動記録）</label>
+              <input type="text" id="newFuelMemo" placeholder="自動で行き先×回数の内訳が記録されます" />
             </div>
           </div>
-          <div class="form-group" style="margin-bottom:8px;">
-            <label>📝 行った場所の内訳・メモ（空欄なら下の行き先×回数が自動入力されます）</label>
-            <input type="text" id="newFuelMemo" placeholder="自動で行き先×回数の内訳が記録されます" />
-          </div>
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;font-size:0.78rem;color:var(--text-sub);">
-            <input type="checkbox" id="resetCountsAfterSave" style="width:15px;height:15px;" />
+            <input type="checkbox" id="resetCountsAfterSave" style="width:15px;height:15px;" checked />
             <label for="resetCountsAfterSave" style="cursor:pointer;">記録を保存したあと、行き先の回数を0にリセットする</label>
           </div>
           <button class="btn btn-primary" style="width:100%;" onclick="saveNewFuelRecord()">
@@ -1193,12 +1189,32 @@
           </button>
         </div>
 
-        <!-- Registered Fuel Settlement Records List -->
+        <!-- Registered Fuel Records History List -->
         <div style="margin-top:20px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <h3 style="font-size:0.95rem;font-weight:800;">📋 給油日の記録履歴・精算期限リスト</h3>
-            <span style="font-size:0.75rem;color:var(--text-muted);" id="fuelRecordsCountLabel"></span>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+            <div>
+              <h3 style="font-size:0.95rem;font-weight:800;">📋 給油日の記録履歴</h3>
+              <div style="font-size:0.72rem;color:var(--text-muted);">※半年（180日）経過した古い記録は自動消去されます</div>
+            </div>
+            <span style="font-size:0.78rem;font-weight:700;color:var(--text-sub);" id="fuelRecordsCountLabel"></span>
           </div>
+
+          <!-- Bulk Selection & Deletion Toolbar -->
+          <div id="fuelBulkToolbar" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;background:#f8fafc;border:1px solid #e2e8f0;padding:8px 10px;border-radius:10px;margin-bottom:10px;">
+            <label style="display:inline-flex;align-items:center;gap:6px;font-size:0.78rem;font-weight:700;cursor:pointer;color:var(--text-sub);">
+              <input type="checkbox" id="selectAllFuelCheckbox" onchange="toggleSelectAllFuelRecords(this.checked)" style="width:16px;height:16px;" />
+              すべて選択
+            </label>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button class="btn btn-danger-ghost btn-sm" id="btnDeleteSelectedFuel" onclick="deleteSelectedFuelRecords()">
+                🗑️ 選択した記録を削除 (<span id="selectedFuelCount">0</span>件)
+              </button>
+              <button class="btn btn-danger-ghost btn-sm" onclick="deleteAllFuelRecords()">
+                🗑️ 全件まとめて削除
+              </button>
+            </div>
+          </div>
+
           <div class="fuel-records-list" id="fuelRecordsContainer">
             <!-- Dynamically rendered fuel records -->
           </div>
@@ -1595,15 +1611,6 @@
           urgentContactCount++;
           const label = rem > 0 ? `交換期限まであと${rem}日 (${m.deadlineDate})` : (rem === 0 ? `本日が交換期限日です！ (${m.deadlineDate})` : `交換期限を${Math.abs(rem)}日超過！ (${m.deadlineDate})`);
           urgentItems.push(`👁️ <strong>${escapeHtml(m.name)}</strong> のコンタクト（${escapeHtml(m.memo)}）: ${label}`);
-        }
-      }
-
-      for (const f of appState.fuelRecords) {
-        if (f.settled) continue;
-        const rem = diffDays(f.deadline);
-        if (rem <= 3) {
-          const label = rem > 0 ? `精算期限まであと${rem}日 (${f.deadline})` : (rem === 0 ? `本日が精算期限日です！ (${f.deadline})` : `精算期限を${Math.abs(rem)}日超過！ (${f.deadline})`);
-          urgentItems.push(`⛽ <strong>ガソリン精算 (${f.useDate}給油 / ${escapeHtml(f.mode)})</strong>: ${label} — 私用控除 <strong>¥${Number(f.privYen).toLocaleString()}</strong> / 業務経費 ¥${Number(f.bizYen).toLocaleString()}`);
         }
       }
 
@@ -2154,22 +2161,16 @@
       }
     }
 
-    function autoSetFuelDeadline() {
-      const useDate = document.getElementById("newFuelUseDate").value;
-      if (useDate) {
-        document.getElementById("newFuelDeadline").value = addDays(useDate, 6);
-      }
-    }
+    let selectedFuelIds = new Set();
 
     async function saveNewFuelRecord() {
       const useDate = document.getElementById("newFuelUseDate").value || appState.serverDate;
-      const deadline = document.getElementById("newFuelDeadline").value || addDays(useDate, 6);
       const memoInput = document.getElementById("newFuelMemo");
       const memo = memoInput.value.trim() || currentCalcResult.defaultMemo;
 
       const payload = {
         useDate,
-        deadline,
+        deadline: addDays(useDate, 180),
         mode: "📍 行き先×回数算定",
         memo,
         bizKm: currentCalcResult.bizKm,
@@ -2198,11 +2199,101 @@
       }
     }
 
+    function updateFuelSelectionToolbar() {
+      const records = appState.fuelRecords || [];
+      // Remove any selected IDs that no longer exist
+      const validIds = new Set(records.map(r => Number(r.id)));
+      for (const id of Array.from(selectedFuelIds)) {
+        if (!validIds.has(Number(id))) selectedFuelIds.delete(id);
+      }
+
+      const countSpan = document.getElementById("selectedFuelCount");
+      if (countSpan) countSpan.textContent = selectedFuelIds.size;
+
+      const selectAllCb = document.getElementById("selectAllFuelCheckbox");
+      if (selectAllCb) {
+        selectAllCb.checked = records.length > 0 && selectedFuelIds.size === records.length;
+      }
+
+      const toolbar = document.getElementById("fuelBulkToolbar");
+      if (toolbar) {
+        toolbar.style.display = records.length > 0 ? "flex" : "none";
+      }
+    }
+
+    function toggleFuelSelection(recordId, isChecked) {
+      const numId = Number(recordId);
+      if (isChecked) {
+        selectedFuelIds.add(numId);
+      } else {
+        selectedFuelIds.delete(numId);
+      }
+      updateFuelSelectionToolbar();
+    }
+
+    function toggleSelectAllFuelRecords(isChecked) {
+      const records = appState.fuelRecords || [];
+      selectedFuelIds.clear();
+      if (isChecked) {
+        for (const r of records) {
+          selectedFuelIds.add(Number(r.id));
+        }
+      }
+      renderFuelRecords();
+    }
+
+    async function deleteSelectedFuelRecords() {
+      if (selectedFuelIds.size === 0) {
+        alert("削除したい給油記録にチェックを入れてください。");
+        return;
+      }
+      if (!confirm(`選択した ${selectedFuelIds.size} 件の給油記録を削除しますか？`)) return;
+
+      const ids = Array.from(selectedFuelIds);
+      const res = await fetch("/api/fuel-records/bulk-delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        selectedFuelIds.clear();
+        renderApp();
+        showToast(`🗑️ 選択した ${ids.length} 件の給油記録を削除しました`);
+      }
+    }
+
+    async function deleteAllFuelRecords() {
+      const records = appState.fuelRecords || [];
+      if (records.length === 0) return;
+      if (!confirm(`登録されている給油記録（全 ${records.length} 件）をすべて削除しますか？`)) return;
+
+      const ids = records.map(r => Number(r.id));
+      const res = await fetch("/api/fuel-records/bulk-delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        selectedFuelIds.clear();
+        renderApp();
+        showToast("🗑️ すべての給油記録を削除しました");
+      }
+    }
+
     function renderFuelRecords() {
       const container = document.getElementById("fuelRecordsContainer");
       const countLbl = document.getElementById("fuelRecordsCountLabel");
       const records = appState.fuelRecords || [];
-      countLbl.textContent = `全 ${records.length} 件`;
+
+      const totalYen = records.reduce((acc, r) => acc + (Number(r.bizYen) || 0), 0);
+      const totalKm = +records.reduce((acc, r) => acc + (Number(r.bizKm) || 0), 0).toFixed(1);
+      countLbl.textContent = `全 ${records.length} 件（合計 ¥${totalYen.toLocaleString()} ／ ${totalKm} km）`;
+
+      updateFuelSelectionToolbar();
 
       if (records.length === 0) {
         container.innerHTML = `<p style="font-size:0.82rem;color:var(--text-muted);">給油記録はまだありません。</p>`;
@@ -2210,50 +2301,46 @@
       }
 
       container.innerHTML = records.map(r => {
-        const rem = diffDays(r.deadline);
-        const isSettled = Number(r.settled) === 1;
-        const isUrgent = !isSettled && rem <= 3;
+        const numId = Number(r.id);
+        const isChecked = selectedFuelIds.has(numId);
         const hasPriv = Number(r.privYen) > 0;
 
-        let badgeHtml = "";
-        if (isSettled) {
-          badgeHtml = `<span class="deadline-status-pill status-safe">✅ 精算・確認済</span>`;
-        } else if (rem < 0) {
-          badgeHtml = `<span class="deadline-status-pill status-danger">🚨 期限 ${Math.abs(rem)}日超過</span>`;
-        } else if (rem === 0) {
-          badgeHtml = `<span class="deadline-status-pill status-danger">🚨 本日期限！</span>`;
-        } else if (rem <= 3) {
-          badgeHtml = `<span class="deadline-status-pill status-warning">⏰ 期限まであと ${rem} 日</span>`;
-        } else {
-          badgeHtml = `<span class="deadline-status-pill status-safe">あと ${rem} 日</span>`;
-        }
-
-        const lineText = `【ガソリン給油・算定記録】\n⛽ 給油日: ${r.useDate}\n📅 精算期限: ${r.deadline}\n📍 行き先内訳: ${r.memo}\n💴 算定ガソリン代: ¥${Number(r.bizYen).toLocaleString()}（${r.bizKm}km / ${r.bizLiters}L）` + (hasPriv ? `\n🏠 私用差額: ¥${Number(r.privYen).toLocaleString()}（${r.privLiters}L）` : "");
-        const gcalUrl = buildGoogleCalendarUrl(
-          `⛽ ガソリン精算期限 (算定 ¥${Number(r.bizYen).toLocaleString()})`,
-          r.deadline,
-          `給油日: ${r.useDate}\n行き先内訳: ${r.memo}\n算定ガソリン代: ¥${Number(r.bizYen).toLocaleString()} (${r.bizKm}km / ${r.bizLiters}L)`
-        );
+        const lineText = `【ガソリン給油・算定記録】\n⛽ 給油日: ${r.useDate}\n📍 行き先内訳: ${r.memo}\n💴 算定ガソリン代: ¥${Number(r.bizYen).toLocaleString()}（${r.bizKm}km / ${r.bizLiters}L）` + (hasPriv ? `\n🏠 私用差額: ¥${Number(r.privYen).toLocaleString()}（${r.privLiters}L）` : "");
 
         return `
-          <div class="fuel-record-card ${isUrgent ? 'is-urgent' : ''} ${isSettled ? 'is-settled' : ''}">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;">
-              <div>
-                <div style="font-size:0.82rem;font-weight:800;color:var(--primary-dark);">
-                  ⛽ 給油日: ${escapeHtml(r.useDate)}
-                  <span style="color:var(--text-muted);font-weight:600;margin-left:8px;">（期限: ${escapeHtml(r.deadline)}）</span>
+          <div class="fuel-record-card" style="${isChecked ? 'border-color:#2563eb;background:#eff6ff;' : ''}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+              <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;flex:1;">
+                <input
+                  type="checkbox"
+                  ${isChecked ? "checked" : ""}
+                  onchange="toggleFuelSelection(${numId}, this.checked)"
+                  style="width:18px;height:18px;margin-top:2px;flex-shrink:0;"
+                />
+                <div>
+                  <div style="font-size:0.84rem;font-weight:800;color:var(--primary-dark);">
+                    ⛽ 給油日: ${escapeHtml(r.useDate)}
+                  </div>
+                  <div style="font-size:0.9rem;font-weight:700;margin-top:3px;color:var(--text-main);">
+                    📍 ${escapeHtml(r.memo || '給油記録')}
+                  </div>
                 </div>
-                <div style="font-size:0.88rem;font-weight:700;margin-top:4px;color:var(--text-main);">
-                  📍 ${escapeHtml(r.memo || '給油記録')}
-                </div>
+              </label>
+
+              <div style="display:flex;gap:6px;align-items:center;">
+                <button class="btn btn-line btn-sm" onclick="copyForLineShare(${ JSON.stringify(lineText).replace(/"/g, '&quot;') }, false)">
+                  💬 LINE共有コピー
+                </button>
+                <button class="btn btn-danger-ghost btn-sm" onclick="deleteFuelRecord(${numId})" title="この記録を削除">
+                  🗑️ 削除
+                </button>
               </div>
-              ${badgeHtml}
             </div>
 
-            <div class="record-split-pills" style="${hasPriv ? '' : 'grid-template-columns:1fr;'}">
+            <div class="record-split-pills" style="${hasPriv ? '' : 'grid-template-columns:1fr;'}margin-bottom:0;">
               <div class="split-pill split-biz" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
                 <span style="font-size:0.78rem;font-weight:700;">💴 算定ガソリン代（走行距離 ${r.bizKm} km ／ ${r.bizLiters} L）</span>
-                <span style="font-size:1.08rem;font-weight:800;">¥${Number(r.bizYen).toLocaleString()}</span>
+                <span style="font-size:1.1rem;font-weight:800;">¥${Number(r.bizYen).toLocaleString()}</span>
               </div>
               ${hasPriv ? `
                 <div class="split-pill split-priv">
@@ -2262,48 +2349,20 @@
                 </div>
               ` : ''}
             </div>
-
-            <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;">
-              <button class="btn ${isSettled ? 'btn-outline' : 'btn-emerald'} btn-sm" onclick="toggleFuelSettled(${r.id}, ${isSettled ? 0 : 1})">
-                ${isSettled ? '↩️ 未精算に戻す' : '✅ 精算・確認済にする'}
-              </button>
-              <button class="btn btn-line btn-sm" onclick="copyForLineShare(${ JSON.stringify(lineText).replace(/"/g, '&quot;') }, false)">
-                💬 LINE共有コピー
-              </button>
-              <a class="btn btn-gcal btn-sm" href="${gcalUrl}" target="_blank" rel="noopener">
-                📅 カレンダー登録
-              </a>
-              <button class="btn btn-danger-ghost btn-sm" style="margin-left:auto;" onclick="deleteFuelRecord(${r.id})">
-                🗑️
-              </button>
-            </div>
           </div>
         `;
       }).join("");
     }
 
-    async function toggleFuelSettled(recordId, settledVal) {
-      const res = await fetch(`/api/fuel-records/${recordId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ settled: settledVal })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        appState = data.state;
-        renderApp();
-        showToast(settledVal ? "✅ 精算済みに更新しました！" : "↩️ 未精算に戻しました");
-      }
-    }
-
     async function deleteFuelRecord(recordId) {
-      if (!confirm("このガソリン精算記録を削除しますか？")) return;
+      if (!confirm("この給油記録を削除しますか？")) return;
       const res = await fetch(`/api/fuel-records/${recordId}`, { method: "DELETE" });
       if (res.ok) {
         const data = await res.json();
         appState = data.state;
+        selectedFuelIds.delete(Number(recordId));
         renderApp();
-        showToast("🗑️ ガソリン精算記録を削除しました");
+        showToast("🗑️ 給油記録を削除しました");
       }
     }
 
@@ -2690,17 +2749,25 @@
     }
 
     async function buildDirectSupabaseState() {
+      const jstNow = new Date(Date.now() + 9 * 3600 * 1000);
+      const todayStr = jstNow.toISOString().slice(0, 10);
+      const cutoffStr = addDays(todayStr, -180);
+
+      // Auto-delete fuel records older than 6 months (180 days)
+      try {
+        await sbFetch("fuel_records", "DELETE", `useDate=lt.${cutoffStr}`);
+      } catch (_) {}
+
       const [settingsArr, members, presets, fuelRecords, notifArr, subs, logs] = await Promise.all([
         sbFetch("settings", "GET", "select=*"),
         sbFetch("members", "GET", "select=*&order=sortOrder.asc,id.asc"),
         sbFetch("presets", "GET", "select=*&order=sortOrder.asc,id.asc"),
-        sbFetch("fuel_records", "GET", "select=*&order=deadline.asc,id.desc"),
+        sbFetch("fuel_records", "GET", "select=*&order=useDate.desc,id.desc"),
         sbFetch("notification_config", "GET", "select=*"),
         sbFetch("push_subscriptions", "GET", "select=*&order=id.desc"),
         sbFetch("notification_logs", "GET", "select=*&order=id.desc&limit=30")
       ]);
       const n = (notifArr && notifArr[0]) || { cronTime: "08:00", emailEnabled: 1, smtpHost: "smtp.gmail.com", smtpPort: 587, smtpUser: "kuuasdfghjk@gmail.com", smtpFromName: "コンタクト＆ガソリン期限管理Bot", webPushEnabled: 1, vapidPublicKey: "" };
-      const jstNow = new Date(Date.now() + 9 * 3600 * 1000);
       return {
         settings: (settingsArr && settingsArr[0]) || { efficiency: 15, fuelPrice: 175 },
         members: members || [],
@@ -2716,7 +2783,7 @@
           supabaseUrl: CLOUD_SB_URL,
           supabaseAnonKey: CLOUD_SB_KEY
         },
-        serverDate: jstNow.toISOString().slice(0, 10),
+        serverDate: todayStr,
         serverTime: jstNow.toISOString().slice(0, 19),
         lanIp: window.location.hostname
       };
@@ -2793,6 +2860,13 @@
         await sbFetch("fuel_records", "POST", "", { ...body, settled: 0, createdAt: nowIso });
         return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
       }
+      if (urlStr === "/api/fuel-records/bulk-delete" && method === "POST") {
+        const ids = (body.ids || []).map(Number).filter(n => !isNaN(n));
+        if (ids.length > 0) {
+          await sbFetch("fuel_records", "DELETE", `id=in.(${ids.join(",")})`);
+        }
+        return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
+      }
       if (urlStr.startsWith("/api/fuel-records/") && method === "PUT") {
         const id = urlStr.split("/api/fuel-records/")[1];
         await sbFetch("fuel_records", "PATCH", `id=eq.${id}`, body);
@@ -2833,15 +2907,11 @@
         }
         const st = await buildDirectSupabaseState();
         const dueM = st.members.filter(m => diffDays(m.deadlineDate, st.serverDate) <= 3 || body.forceAll);
-        const dueF = st.fuelRecords.filter(f => !f.settled && (diffDays(f.deadline, st.serverDate) <= 3 || body.forceAll));
-        const lines = [
-          ...dueM.map(m => `👁️ ${m.name}のコンタクト(${m.memo}): 期限 ${m.deadlineDate} (残り${diffDays(m.deadlineDate, st.serverDate)}日)`),
-          ...dueF.map(f => `⛽ ガソリン精算(${f.useDate}給油): 期限 ${f.deadline} / 私用控除 ¥${Number(f.privYen).toLocaleString()}`)
-        ];
+        const lines = dueM.map(m => `👁️ ${m.name}のコンタクト(${m.memo}): 期限 ${m.deadlineDate} (残り${diffDays(m.deadlineDate, st.serverDate)}日)`);
         if (lines.length > 0) {
-          triggerBrowserNotification(`🔔 期限アラート (${lines.length}件)`, lines.join("\n"));
+          triggerBrowserNotification(`🔔 コンタクト交換アラート (${lines.length}件)`, lines.join("\n"));
         }
-        return makeJsonResponse({ ok: true, result: { dueMembersCount: dueM.length, dueFuelsCount: dueF.length, ...edgeRes }, state: st });
+        return makeJsonResponse({ ok: true, result: { dueMembersCount: dueM.length, dueFuelsCount: 0, ...edgeRes }, state: st });
       }
       return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
     };
@@ -2854,8 +2924,8 @@
       if (res.ok) {
         appState = await res.json();
         const today = appState.serverDate || new Date().toISOString().slice(0, 10);
-        document.getElementById("newFuelUseDate").value = today;
-        document.getElementById("newFuelDeadline").value = addDays(today, 6);
+        const useDateEl = document.getElementById("newFuelUseDate");
+        if (useDateEl) useDateEl.value = today;
         renderApp();
       }
 
