@@ -216,7 +216,7 @@
 
     .nav-tabs {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 6px;
       background: #e2e8f0;
       padding: 5px;
@@ -1020,6 +1020,169 @@
       margin-bottom: 10px;
     }
 
+    /* Workout Tracker & Interval Styles */
+    .workout-interval-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .workout-part-status-card {
+      border-radius: 14px;
+      border: 2px solid var(--border);
+      padding: 12px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative;
+      background: #ffffff;
+      user-select: none;
+    }
+
+    .workout-part-status-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .workout-part-status-card.interval-today {
+      border-color: #60a5fa;
+      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 75%);
+    }
+    .workout-part-status-card.interval-rest {
+      border-color: #34d399;
+      background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 75%);
+    }
+    .workout-part-status-card.interval-ready {
+      border-color: #fbbf24;
+      background: linear-gradient(180deg, #fffbeb 0%, #ffffff 75%);
+    }
+    .workout-part-status-card.interval-overdue {
+      border-color: #f87171;
+      background: linear-gradient(180deg, #fef2f2 0%, #ffffff 75%);
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+    }
+    .workout-part-status-card.interval-none {
+      border-color: #cbd5e1;
+      background: #f8fafc;
+    }
+
+    .workout-part-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .workout-interval-badge {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-bottom: 6px;
+    }
+
+    .workout-interval-main {
+      font-size: 1.45rem;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin: 2px 0;
+    }
+
+    .workout-interval-sub {
+      font-size: 0.72rem;
+      color: var(--text-sub);
+      font-weight: 600;
+    }
+
+    .workout-interval-bar {
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .workout-interval-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+
+    .workout-part-check-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .workout-check-pill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 8px;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      background: #ffffff;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--text-main);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .workout-check-pill:hover {
+      border-color: #93c5fd;
+      background: #f8fafc;
+    }
+
+    .workout-check-pill.checked {
+      border-color: #2563eb;
+      background: #eff6ff;
+      color: #1d4ed8;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.16);
+    }
+
+    .workout-check-box {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      border: 2px solid #94a3b8;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 900;
+      background: #ffffff;
+      color: transparent;
+      transition: all 0.12s ease;
+      flex-shrink: 0;
+    }
+
+    .workout-check-pill.checked .workout-check-box {
+      border-color: #2563eb;
+      background: #2563eb;
+      color: #ffffff;
+    }
+
+    .workout-part-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
     /* Smartphone Responsive Layout */
     @media (max-width: 640px) {
       .app-header {
@@ -1061,15 +1224,29 @@
       }
 
       .nav-tabs {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 4px;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 3px;
         padding: 4px;
       }
 
       .nav-tab {
-        padding: 8px 4px;
-        font-size: 0.74rem;
+        padding: 8px 2px;
+        font-size: 0.7rem;
         white-space: nowrap;
+      }
+
+      .workout-interval-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+
+      .workout-interval-grid > .workout-part-status-card:last-child {
+        grid-column: 1 / -1;
+      }
+
+      .workout-part-check-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
       }
 
       .panel-card {
@@ -1232,8 +1409,11 @@
       <button class="nav-tab" id="tabBtnFuel" onclick="switchView('fuel')">
         ⛽ ガソリン
       </button>
+      <button class="nav-tab" id="tabBtnWorkout" onclick="switchView('workout')">
+        💪 筋トレ
+      </button>
       <button class="nav-tab" id="tabBtnNotifications" onclick="switchView('notifications')">
-        ⚙️ 設定・履歴
+        ⚙️ 設定
       </button>
     </div>
   </div>
@@ -1413,6 +1593,81 @@
 
           <div class="fuel-records-list" id="fuelRecordsContainer">
             <!-- Dynamically rendered fuel records -->
+          </div>
+        </div>
+      </section>
+
+      <!-- FULL-WIDTH / 3RD SECTION: 3. ワークアウト記録 ＆ 部位別インターバル（中何日）管理 -->
+      <section class="panel-card" id="sectionWorkout" style="grid-column: 1 / -1;">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">💪 ワークアウト記録 ＆ 部位別インターバル（中何日）管理</div>
+            <div class="panel-subtitle">胸・肩・背中・脚・腕のトレーニングから中何日空いているかを一目で把握し、複数部位＆内容メモを記録します</div>
+          </div>
+        </div>
+
+        <!-- 1. 部位別「中何日空いているか」ステータスボード -->
+        <div style="margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+          <span style="font-size:0.86rem;font-weight:800;color:var(--text-main);">🔥 部位別インターバル状況（カードをタップすると下の部位選択にチェックが入ります）</span>
+          <span style="font-size:0.74rem;color:var(--text-muted);">🔵今日・回復中 ／ 🟡トレ適期(中2〜4日) ／ 🔴要トレ(中5日〜)</span>
+        </div>
+        <div class="workout-interval-grid" id="workoutIntervalGrid">
+          <!-- Dynamically rendered 5 body part interval cards -->
+        </div>
+
+        <!-- 2. トレーニング記録フォーム（複数部位レ点チェック ＆ 日付 ＆ メモ） -->
+        <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:14px;padding:14px;">
+          <div style="font-size:0.86rem;font-weight:800;margin-bottom:8px;color:var(--text-main);">
+            ☑️ 1. トレーニングした部位を選択（複数選択可）
+          </div>
+          <div class="workout-part-check-grid" id="workoutPartCheckGrid">
+            <!-- Dynamically rendered 5 checkable pills -->
+          </div>
+
+          <div class="fuel-date-form-grid">
+            <div class="form-group">
+              <label>📅 2. トレーニング日</label>
+              <input type="date" id="newWorkoutDate" />
+            </div>
+            <div class="form-group">
+              <label>📝 3. トレーニング内容メモ（種目・重量・回数・セット数など）</label>
+              <input type="text" id="newWorkoutMemo" placeholder="例: ベンチプレス 80kg×8×3、インクラインダンベル 22kg×10×3" />
+            </div>
+          </div>
+
+          <button class="btn btn-primary" style="width:100%;" onclick="saveNewWorkoutRecord()">
+            💪 この内容でワークアウトを記録する
+          </button>
+        </div>
+
+        <!-- 3. トレーニング履歴リスト -->
+        <div style="margin-top:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+            <div>
+              <h3 style="font-size:0.95rem;font-weight:800;">📋 トレーニング履歴リスト</h3>
+              <div style="font-size:0.72rem;color:var(--text-muted);">※半年（180日）経過した古い記録は自動消去されます</div>
+            </div>
+            <span style="font-size:0.78rem;font-weight:700;color:var(--text-sub);" id="workoutRecordsCountLabel"></span>
+          </div>
+
+          <!-- Bulk Selection & Deletion Toolbar for Workouts -->
+          <div id="workoutBulkToolbar" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;background:#f8fafc;border:1px solid #e2e8f0;padding:8px 10px;border-radius:10px;margin-bottom:10px;">
+            <label style="display:inline-flex;align-items:center;gap:6px;font-size:0.78rem;font-weight:700;cursor:pointer;color:var(--text-sub);">
+              <input type="checkbox" id="selectAllWorkoutCheckbox" onchange="toggleSelectAllWorkoutRecords(this.checked)" style="width:16px;height:16px;" />
+              すべて選択
+            </label>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button class="btn btn-danger-ghost btn-sm" onclick="deleteSelectedWorkoutRecords()">
+                🗑️ 選択した記録を削除 (<span id="selectedWorkoutCount">0</span>件)
+              </button>
+              <button class="btn btn-danger-ghost btn-sm" onclick="deleteAllWorkoutRecords()">
+                🗑️ 全件まとめて削除
+              </button>
+            </div>
+          </div>
+
+          <div class="fuel-records-list" id="workoutRecordsContainer">
+            <!-- Dynamically rendered workout records -->
           </div>
         </div>
       </section>
@@ -1744,12 +1999,15 @@
       const grid = document.getElementById("mainDashboardGrid");
       const secContacts = document.getElementById("sectionContacts");
       const secFuel = document.getElementById("sectionFuel");
+      const secWorkout = document.getElementById("sectionWorkout");
       const secNotif = document.getElementById("sectionNotifications");
 
       document.getElementById("tabBtnAll").classList.toggle("active", viewName === "all");
       document.getElementById("tabBtnContacts").classList.toggle("active", viewName === "contacts");
       const tabFuel = document.getElementById("tabBtnFuel");
       if (tabFuel) tabFuel.classList.toggle("active", viewName === "fuel");
+      const tabWorkout = document.getElementById("tabBtnWorkout");
+      if (tabWorkout) tabWorkout.classList.toggle("active", viewName === "workout");
       document.getElementById("tabBtnNotifications").classList.toggle("active", viewName === "notifications");
 
       if (viewName === "all") {
@@ -1757,18 +2015,28 @@
         grid.style.gridTemplateColumns = "";
         secContacts.classList.remove("hidden");
         secFuel.classList.remove("hidden");
+        if (secWorkout) secWorkout.classList.remove("hidden");
         secNotif.classList.add("hidden");
       } else if (viewName === "contacts") {
         grid.classList.remove("hidden");
         grid.style.gridTemplateColumns = "1fr";
         secContacts.classList.remove("hidden");
         secFuel.classList.add("hidden");
+        if (secWorkout) secWorkout.classList.add("hidden");
         secNotif.classList.add("hidden");
       } else if (viewName === "fuel") {
         grid.classList.remove("hidden");
         grid.style.gridTemplateColumns = "1fr";
         secContacts.classList.add("hidden");
         secFuel.classList.remove("hidden");
+        if (secWorkout) secWorkout.classList.add("hidden");
+        secNotif.classList.add("hidden");
+      } else if (viewName === "workout") {
+        grid.classList.remove("hidden");
+        grid.style.gridTemplateColumns = "1fr";
+        secContacts.classList.add("hidden");
+        secFuel.classList.add("hidden");
+        if (secWorkout) secWorkout.classList.remove("hidden");
         secNotif.classList.add("hidden");
       } else if (viewName === "notifications") {
         grid.classList.add("hidden");
@@ -1800,6 +2068,7 @@
       renderPresets();
       recalcCurrentFuelMode();
       renderFuelRecords();
+      renderWorkoutSection();
       renderNotificationSection();
     }
 
@@ -2569,6 +2838,335 @@
       }
     }
 
+    // 3. Workout Recording & Body-Part Interval ("中何日") Management
+    const WORKOUT_PARTS_DEF = [
+      { key: "胸", icon: "🔥", bg: "#dbeafe", color: "#1d4ed8", border: "#93c5fd" },
+      { key: "肩", icon: "🏋️", bg: "#fef3c7", color: "#b45309", border: "#fcd34d" },
+      { key: "背中", icon: "🦅", bg: "#d1fae5", color: "#047857", border: "#6ee7b7" },
+      { key: "脚", icon: "🦵", bg: "#fce7f3", color: "#be185d", border: "#f9a8d4" },
+      { key: "腕", icon: "💪", bg: "#ede9fe", color: "#6d28d9", border: "#c4b5fd" }
+    ];
+
+    let selectedWorkoutParts = new Set(["胸"]);
+    let selectedWorkoutIds = new Set();
+
+    function getDayOfWeekJa(dateStr) {
+      if (!dateStr) return "";
+      const [y, m, d] = dateStr.split("-").map(Number);
+      const dt = new Date(Date.UTC(y, m - 1, d));
+      return ["日", "月", "火", "水", "木", "金", "土"][dt.getUTCDay()] || "";
+    }
+
+    function toggleWorkoutPartCheck(partKey) {
+      if (selectedWorkoutParts.has(partKey)) {
+        selectedWorkoutParts.delete(partKey);
+      } else {
+        selectedWorkoutParts.add(partKey);
+      }
+      renderWorkoutPartChecks();
+    }
+
+    function renderWorkoutPartChecks() {
+      const checkGrid = document.getElementById("workoutPartCheckGrid");
+      if (!checkGrid) return;
+      checkGrid.innerHTML = WORKOUT_PARTS_DEF.map(p => {
+        const isChecked = selectedWorkoutParts.has(p.key);
+        return `
+          <div class="workout-check-pill ${isChecked ? 'checked' : ''}" onclick="toggleWorkoutPartCheck('${p.key}')">
+            <span class="workout-check-box">${isChecked ? '✓' : ''}</span>
+            <span>${p.icon} ${p.key}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderWorkoutSection() {
+      const intervalGrid = document.getElementById("workoutIntervalGrid");
+      if (!intervalGrid) return;
+
+      renderWorkoutPartChecks();
+
+      const records = appState.workoutRecords || [];
+      const todayStr = appState.serverDate || new Date().toISOString().slice(0, 10);
+
+      // Compute latest workoutDate for each body part
+      intervalGrid.innerHTML = WORKOUT_PARTS_DEF.map(part => {
+        let latestDate = null;
+        for (const r of records) {
+          const rParts = Array.isArray(r.parts) ? r.parts : String(r.parts || "").split(",");
+          if (rParts.includes(part.key)) {
+            if (!latestDate || r.workoutDate > latestDate) {
+              latestDate = r.workoutDate;
+            }
+          }
+        }
+
+        let cardClass = "interval-none";
+        let badgeText = "未記録";
+        let badgeStyle = "background:#e2e8f0;color:#475569;";
+        let mainText = "未実施";
+        let mainColor = "#64748b";
+        let subText = "記録なし";
+        let barPct = 0;
+        let barColor = "#cbd5e1";
+
+        if (latestDate) {
+          const elapsed = diffDays(todayStr, latestDate); // days since latestDate
+          const shortDate = latestDate.slice(5).replace("-", "/");
+          if (elapsed <= 0) {
+            cardClass = "interval-today";
+            badgeText = "⚡ 本日トレ済";
+            badgeStyle = "background:#dbeafe;color:#1d4ed8;";
+            mainText = "今日実施！";
+            mainColor = "#1d4ed8";
+            subText = `最終: 今日 (${shortDate})`;
+            barPct = 100;
+            barColor = "#2563eb";
+          } else {
+            const nakaDays = elapsed - 1; // 中何日 (full days between latestDate and today)
+            mainText = `中 ${nakaDays} 日`;
+            if (nakaDays <= 1) {
+              // 中0日(昨日) 〜 中1日(2日前): 超回復・休養中
+              cardClass = "interval-rest";
+              badgeText = "💤 回復・休養中";
+              badgeStyle = "background:#d1fae5;color:#065f46;";
+              mainColor = "#059669";
+              subText = `${elapsed}日前 (最終 ${shortDate})`;
+              barPct = nakaDays === 0 ? 80 : 60;
+              barColor = "#10b981";
+            } else if (nakaDays <= 4) {
+              // 中2日(3日前) 〜 中4日(5日前): トレーニング適期
+              cardClass = "interval-ready";
+              badgeText = "🎯 トレ適期！";
+              badgeStyle = "background:#fef3c7;color:#92400e;";
+              mainColor = "#d97706";
+              subText = `${elapsed}日前 (最終 ${shortDate})`;
+              barPct = 40;
+              barColor = "#f59e0b";
+            } else {
+              // 中5日以上(6日以上前): 間隔空き・要トレーニング
+              cardClass = "interval-overdue";
+              badgeText = "🔥 要トレ！";
+              badgeStyle = "background:#fee2e2;color:#991b1b;";
+              mainColor = "#dc2626";
+              subText = `${elapsed}日前 (最終 ${shortDate})`;
+              barPct = 15;
+              barColor = "#ef4444";
+            }
+          }
+        }
+
+        return `
+          <div class="workout-part-status-card ${cardClass}" onclick="toggleWorkoutPartCheck('${part.key}')" title="タップして「${part.key}」を選択/解除">
+            <div class="workout-part-header">
+              <span>${part.icon}</span>
+              <span>${part.key}</span>
+            </div>
+            <span class="workout-interval-badge" style="${badgeStyle}">${badgeText}</span>
+            <div class="workout-interval-main" style="color:${mainColor};">${mainText}</div>
+            <div class="workout-interval-sub">${subText}</div>
+            <div class="workout-interval-bar">
+              <div class="workout-interval-bar-fill" style="width:${barPct}%;background:${barColor};"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      renderWorkoutRecordsList();
+    }
+
+    async function saveNewWorkoutRecord() {
+      if (selectedWorkoutParts.size === 0) {
+        alert("トレーニングした部位（胸・肩・背中・脚・腕）を1つ以上チェックしてください。");
+        return;
+      }
+      const workoutDate = document.getElementById("newWorkoutDate")?.value || appState.serverDate;
+      const memoEl = document.getElementById("newWorkoutMemo");
+      const memo = (memoEl?.value || "").trim();
+      const parts = WORKOUT_PARTS_DEF.map(p => p.key).filter(k => selectedWorkoutParts.has(k));
+
+      const res = await fetch("/api/workout-records", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workoutDate, parts, memo })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        if (memoEl) memoEl.value = "";
+        renderApp();
+        showToast(`💪 ワークアウト（${parts.join("・")}）を記録しました！`);
+      }
+    }
+
+    function updateWorkoutSelectionToolbar() {
+      const records = appState.workoutRecords || [];
+      const validIds = new Set(records.map(r => Number(r.id)));
+      for (const id of Array.from(selectedWorkoutIds)) {
+        if (!validIds.has(Number(id))) selectedWorkoutIds.delete(id);
+      }
+
+      const countSpan = document.getElementById("selectedWorkoutCount");
+      if (countSpan) countSpan.textContent = selectedWorkoutIds.size;
+
+      const selectAllCb = document.getElementById("selectAllWorkoutCheckbox");
+      if (selectAllCb) {
+        selectAllCb.checked = records.length > 0 && selectedWorkoutIds.size === records.length;
+      }
+
+      const toolbar = document.getElementById("workoutBulkToolbar");
+      if (toolbar) {
+        toolbar.style.display = records.length > 0 ? "flex" : "none";
+      }
+    }
+
+    function toggleWorkoutSelection(recordId, isChecked) {
+      const numId = Number(recordId);
+      if (isChecked) {
+        selectedWorkoutIds.add(numId);
+      } else {
+        selectedWorkoutIds.delete(numId);
+      }
+      updateWorkoutSelectionToolbar();
+    }
+
+    function toggleSelectAllWorkoutRecords(isChecked) {
+      const records = appState.workoutRecords || [];
+      selectedWorkoutIds.clear();
+      if (isChecked) {
+        for (const r of records) {
+          selectedWorkoutIds.add(Number(r.id));
+        }
+      }
+      renderWorkoutRecordsList();
+    }
+
+    async function deleteSelectedWorkoutRecords() {
+      if (selectedWorkoutIds.size === 0) {
+        alert("削除したいトレーニング記録にチェックを入れてください。");
+        return;
+      }
+      if (!confirm(`選択した ${selectedWorkoutIds.size} 件のトレーニング記録を削除しますか？`)) return;
+
+      const ids = Array.from(selectedWorkoutIds);
+      const res = await fetch("/api/fuel-records/bulk-delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        selectedWorkoutIds.clear();
+        renderApp();
+        showToast(`🗑️ 選択した ${ids.length} 件のトレーニング記録を削除しました`);
+      }
+    }
+
+    async function deleteAllWorkoutRecords() {
+      const records = appState.workoutRecords || [];
+      if (records.length === 0) return;
+      if (!confirm(`登録されているトレーニング記録（全 ${records.length} 件）をすべて削除しますか？`)) return;
+
+      const ids = records.map(r => Number(r.id));
+      const res = await fetch("/api/fuel-records/bulk-delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        selectedWorkoutIds.clear();
+        renderApp();
+        showToast("🗑️ すべてのトレーニング記録を削除しました");
+      }
+    }
+
+    async function deleteWorkoutRecord(recordId) {
+      if (!confirm("このトレーニング記録を削除しますか？")) return;
+      const res = await fetch(`/api/fuel-records/${recordId}`, { method: "DELETE" });
+      if (res.ok) {
+        const data = await res.json();
+        appState = data.state;
+        selectedWorkoutIds.delete(Number(recordId));
+        renderApp();
+        showToast("🗑️ トレーニング記録を削除しました");
+      }
+    }
+
+    function renderWorkoutRecordsList() {
+      const container = document.getElementById("workoutRecordsContainer");
+      const countLbl = document.getElementById("workoutRecordsCountLabel");
+      if (!container) return;
+
+      const records = appState.workoutRecords || [];
+      if (countLbl) countLbl.textContent = `全 ${records.length} 回`;
+
+      updateWorkoutSelectionToolbar();
+
+      if (records.length === 0) {
+        container.innerHTML = `<p style="font-size:0.82rem;color:var(--text-muted);">まだトレーニング記録がありません。上の部位にチェックを入れて記録してみましょう！</p>`;
+        return;
+      }
+
+      const todayStr = appState.serverDate || new Date().toISOString().slice(0, 10);
+
+      container.innerHTML = records.map(r => {
+        const numId = Number(r.id);
+        const isChecked = selectedWorkoutIds.has(numId);
+        const rParts = Array.isArray(r.parts) ? r.parts : String(r.parts || "").split(",").filter(Boolean);
+        const dow = getDayOfWeekJa(r.workoutDate);
+        const elapsed = diffDays(todayStr, r.workoutDate);
+        const agoLabel = elapsed <= 0 ? "今日" : (elapsed === 1 ? "昨日（中0日）" : `${elapsed}日前（中${elapsed - 1}日）`);
+
+        const partBadgesHtml = rParts.map(pk => {
+          const def = WORKOUT_PARTS_DEF.find(d => d.key === pk) || { icon: "💪", bg: "#e2e8f0", color: "#334155", border: "#cbd5e1" };
+          return `<span class="workout-part-tag" style="background:${def.bg};color:${def.color};border:1px solid ${def.border};">${def.icon} ${escapeHtml(pk)}</span>`;
+        }).join(" ");
+
+        const lineText = `【💪 ワークアウト記録】\n📅 日付: ${r.workoutDate} (${dow})\n🔥 部位: ${rParts.join("・")}\n📝 内容: ${r.memo || "記録なし"}`;
+
+        return `
+          <div class="fuel-record-card" style="border-left-color:#7c3aed;${isChecked ? 'border-color:#2563eb;background:#eff6ff;' : ''}">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input
+                  type="checkbox"
+                  ${isChecked ? "checked" : ""}
+                  onchange="toggleWorkoutSelection(${numId}, this.checked)"
+                  style="width:18px;height:18px;flex-shrink:0;"
+                />
+                <span style="font-size:0.88rem;font-weight:800;color:var(--text-main);">
+                  📅 ${escapeHtml(r.workoutDate)} (${dow})
+                </span>
+                <span style="font-size:0.75rem;font-weight:700;color:var(--text-muted);background:#f1f5f9;padding:2px 8px;border-radius:999px;">
+                  ${agoLabel}
+                </span>
+              </label>
+
+              <div style="display:flex;gap:6px;align-items:center;">
+                <button class="btn btn-line btn-sm" onclick="copyForLineShare(${ JSON.stringify(lineText).replace(/"/g, '&quot;') }, false)">
+                  💬 LINE共有
+                </button>
+                <button class="btn btn-danger-ghost btn-sm" onclick="deleteWorkoutRecord(${numId})" title="削除">
+                  🗑️ 削除
+                </button>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+              ${partBadgesHtml}
+            </div>
+
+            ${r.memo ? `
+              <div style="font-size:0.84rem;color:var(--text-sub);background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;margin-top:8px;white-space:pre-wrap;word-break:break-word;">📝 ${escapeHtml(r.memo)}</div>
+            ` : ''}
+          </div>
+        `;
+      }).join("");
+    }
+
     // 3. Notifications & Web Push & Cron Management
     function renderNotificationSection() {
       const cfg = appState.notificationConfig || {};
@@ -2961,7 +3559,7 @@
         await sbFetch("fuel_records", "DELETE", `useDate=lt.${cutoffStr}`);
       } catch (_) {}
 
-      const [settingsArr, members, presets, fuelRecords, notifArr, subs, logs] = await Promise.all([
+      const [settingsArr, members, presets, allFuelRows, notifArr, subs, logs] = await Promise.all([
         sbFetch("settings", "GET", "select=*"),
         sbFetch("members", "GET", "select=*&order=sortOrder.asc,id.asc"),
         sbFetch("presets", "GET", "select=*&order=sortOrder.asc,id.asc"),
@@ -2970,12 +3568,25 @@
         sbFetch("push_subscriptions", "GET", "select=*&order=id.desc"),
         sbFetch("notification_logs", "GET", "select=*&order=id.desc&limit=30")
       ]);
+      const rawRows = allFuelRows || [];
+      const fuelRecords = rawRows.filter(r => !String(r.mode || "").startsWith("WORKOUT:"));
+      const workoutRecords = rawRows
+        .filter(r => String(r.mode || "").startsWith("WORKOUT:"))
+        .map(r => ({
+          id: r.id,
+          workoutDate: r.useDate,
+          parts: String(r.mode || "").replace("WORKOUT:", "").split(",").filter(Boolean),
+          memo: r.memo || "",
+          createdAt: r.createdAt || ""
+        }));
+
       const n = (notifArr && notifArr[0]) || { cronTime: "08:00", emailEnabled: 1, smtpHost: "smtp.gmail.com", smtpPort: 587, smtpUser: "kuuasdfghjk@gmail.com", smtpFromName: "コンタクト＆ガソリン期限管理Bot", webPushEnabled: 1, vapidPublicKey: "" };
       return {
         settings: (settingsArr && settingsArr[0]) || { efficiency: 15, fuelPrice: 175 },
         members: members || [],
         presets: presets || [],
-        fuelRecords: fuelRecords || [],
+        fuelRecords,
+        workoutRecords,
         notificationConfig: { ...n, hasSmtpPass: Boolean(n.smtpPass) },
         pushSubscriptions: subs || [],
         notificationLogs: logs || [],
@@ -3063,6 +3674,24 @@
         await sbFetch("fuel_records", "POST", "", { ...body, settled: 0, createdAt: nowIso });
         return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
       }
+      if (urlStr === "/api/workout-records" && method === "POST") {
+        const wDate = body.workoutDate || nowIso.slice(0, 10);
+        const partsStr = Array.isArray(body.parts) ? body.parts.join(",") : String(body.parts || "");
+        await sbFetch("fuel_records", "POST", "", {
+          useDate: wDate,
+          deadline: addDays(wDate, 180),
+          mode: `WORKOUT:${partsStr}`,
+          memo: body.memo || "",
+          bizKm: 0,
+          bizLiters: 0,
+          bizYen: 0,
+          privLiters: 0,
+          privYen: 0,
+          settled: 0,
+          createdAt: nowIso
+        });
+        return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
+      }
       if (urlStr === "/api/fuel-records/bulk-delete" && method === "POST") {
         const ids = (body.ids || []).map(Number).filter(n => !isNaN(n));
         if (ids.length > 0) {
@@ -3129,6 +3758,8 @@
         const today = appState.serverDate || new Date().toISOString().slice(0, 10);
         const useDateEl = document.getElementById("newFuelUseDate");
         if (useDateEl) useDateEl.value = today;
+        const wDateEl = document.getElementById("newWorkoutDate");
+        if (wDateEl) wDateEl.value = today;
         renderApp();
       }
 
