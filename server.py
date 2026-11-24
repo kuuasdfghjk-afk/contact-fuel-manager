@@ -492,9 +492,19 @@ def get_full_state(pull_cloud: bool = True) -> dict:
 
     sb_url, sb_key = supabase_client.get_supabase_credentials()
 
+    cutoff_str = (today_jst() - datetime.timedelta(days=180)).isoformat()
+    if supabase_client.is_supabase_enabled():
+        try:
+            supabase_client.sb_request("DELETE", "fuel_records", {"useDate": f"lt.{cutoff_str}"})
+        except Exception:
+            pass
+
     with db_lock:
         conn = get_db_connection()
         cur = conn.cursor()
+
+        cur.execute("DELETE FROM fuel_records WHERE useDate < ?", (cutoff_str,))
+        conn.commit()
 
         cur.execute("SELECT efficiency, fuelPrice, updatedAt FROM settings WHERE id = 1")
         s_row = cur.fetchone()
@@ -510,10 +520,22 @@ def get_full_state(pull_cloud: bool = True) -> dict:
             """
             SELECT id, useDate, deadline, mode, memo, bizKm, bizLiters, bizYen, privLiters, privYen, settled, createdAt
             FROM fuel_records
-            ORDER BY deadline ASC, id DESC
+            ORDER BY useDate DESC, id DESC
             """
         )
-        fuel_records = [dict(r) for r in cur.fetchall()]
+        all_fuel_rows = [dict(r) for r in cur.fetchall()]
+        fuel_records = [r for r in all_fuel_rows if not str(r.get("mode", "")).startswith("WORKOUT:")]
+        workout_records = [
+            {
+                "id": r["id"],
+                "workoutDate": r["useDate"],
+                "parts": [p for p in str(r.get("mode", "")).replace("WORKOUT:", "").split(",") if p],
+                "memo": r.get("memo", ""),
+                "createdAt": r.get("createdAt", ""),
+            }
+            for r in all_fuel_rows
+            if str(r.get("mode", "")).startswith("WORKOUT:")
+        ]
 
         cur.execute(
             """
@@ -548,6 +570,7 @@ def get_full_state(pull_cloud: bool = True) -> dict:
         "members": members,
         "presets": presets,
         "fuelRecords": fuel_records,
+        "workoutRecords": workout_records,
         "notificationConfig": notif_config,
         "pushSubscriptions": subs,
         "notificationLogs": logs,
@@ -730,9 +753,6 @@ def execute_daily_notifications(trigger_type: str = "manual_test", force_all: bo
         cur.execute("SELECT * FROM members ORDER BY sortOrder ASC")
         members = [dict(r) for r in cur.fetchall()]
 
-        cur.execute("SELECT * FROM fuel_records WHERE settled = 0 ORDER BY deadline ASC")
-        unsettled_fuels = [dict(r) for r in cur.fetchall()]
-
         cur.execute("SELECT * FROM push_subscriptions")
         subs = [dict(r) for r in cur.fetchall()]
 
@@ -746,31 +766,23 @@ def execute_daily_notifications(trigger_type: str = "manual_test", force_all: bo
         if rem <= 3 or force_all:
             due_members.append(m_copy)
 
-    due_fuels = []
-    for f in unsettled_fuels:
-        rem = days_until(f["deadline"], today)
-        f_copy = dict(f)
-        f_copy["remainingDays"] = rem
-        if rem <= 3 or force_all:
-            due_fuels.append(f_copy)
-
     summary_results = {
         "evaluatedDate": today.isoformat(),
         "triggerType": trigger_type,
         "dueMembersCount": len(due_members),
-        "dueFuelsCount": len(due_fuels),
+        "dueFuelsCount": 0,
         "dueMembers": due_members,
-        "dueFuels": due_fuels,
+        "dueFuels": [],
         "deliveries": [],
     }
 
-    if not due_members and not due_fuels:
+    if not due_members:
         log_notification(
             trigger_type=trigger_type,
             channel="SYSTEM",
             recipient="全員",
-            subject="期限3日前以内の対象項目なし",
-            body="本日時点で交換期限3日前以内のコンタクトおよび精算期限3日前以内のガソリン記録はありませんでした。",
+            subject="交換期限3日前以内のコンタクトなし",
+            body="本日時点で交換期限3日前以内の2WEEKコンタクトはありませんでした。",
             status="SKIPPED",
             detail="対象0件",
         )
@@ -783,14 +795,7 @@ def execute_daily_notifications(trigger_type: str = "manual_test", force_all: bo
         status_str = f"残り{rem}日" if rem > 0 else ("本日交換日！" if rem == 0 else f"{abs(rem)}日超過！")
         push_lines.append(f"👁️ {m['name']}のコンタクト({m['memo']}): 期限 {m['deadlineDate']} 【{status_str}】")
 
-    for f in due_fuels:
-        rem = f["remainingDays"]
-        status_str = f"残り{rem}日" if rem > 0 else ("本日精算期限！" if rem == 0 else f"{abs(rem)}日超過！")
-        push_lines.append(
-            f"⛽ ガソリン精算({f['useDate']}給油 / {f['mode']}): 期限 {f['deadline']} 【{status_str}】 私用控除 ¥{f['privYen']:,} / 業務経費 ¥{f['bizYen']:,}"
-        )
-
-    combined_title = f"🔔 期限アラート ({len(due_members) + len(due_fuels)}件)"
+    combined_title = f"🔔 2WEEKコンタクト交換アラート ({len(due_members)}名)"
     combined_body = "\n".join(push_lines)
 
     # 1. Web Push Notifications
@@ -800,10 +805,10 @@ def execute_daily_notifications(trigger_type: str = "manual_test", force_all: bo
             latest_push_payload = {
                 "title": combined_title,
                 "body": combined_body,
-                "icon": "/icon.svg",
-                "badge": "/icon.svg",
+                "icon": "./icon.svg",
+                "badge": "./icon.svg",
                 "tag": f"deadline-alert-{today.isoformat()}",
-                "url": "/",
+                "url": "./",
                 "items": push_lines,
                 "timestamp": int(time.time() * 1000),
             }
@@ -848,91 +853,38 @@ def execute_daily_notifications(trigger_type: str = "manual_test", force_all: bo
             {"channel": "WEB_PUSH", "status": push_status, "detail": detail_msg}
         )
 
-    # 2. Email Notifications
+    # 2. Email Notifications (Contact Lens Only)
     if config.get("emailEnabled", 1):
-        recipients_map: dict[str, dict] = {}
         for m in due_members:
-            addr = m.get("email", "").strip()
-            if addr:
-                recipients_map[addr] = {
-                    "member": m,
-                    "includeContact": True,
-                    "includeFuels": True,
-                }
+            to_addr = (m.get("email") or "").strip()
+            if not to_addr:
+                continue
 
-        if due_fuels and not recipients_map:
-            for m in members:
-                addr = m.get("email", "").strip()
-                if addr:
-                    recipients_map[addr] = {
-                        "member": m,
-                        "includeContact": False,
-                        "includeFuels": True,
-                    }
-                    break
-
-        for to_addr, info in recipients_map.items():
-            m = info["member"]
-            subject_parts = []
-            plain_sections = [f"{m['name']} さん、おはようございます。\n毎朝8:00の期限管理自動チェック結果をお知らせします。\n"]
-            html_cards = []
-
-            if info["includeContact"]:
-                rem = m["remainingDays"]
-                badge = f"残り {rem} 日" if rem > 0 else ("本日が交換日です！" if rem == 0 else f"期限を {abs(rem)} 日超過しています！")
-                subject_parts.append(f"コンタクト交換期限（{badge}）")
-                plain_sections.append(
-                    f"■ 2WEEKコンタクト交換アラート\n"
-                    f"・対象メンバー: {m['name']}\n"
-                    f"・レンズ銘柄/メモ: {m['memo']}\n"
-                    f"・開封日: {m['startDate']}\n"
-                    f"・交換期限日: {m['deadlineDate']} （{badge}）\n"
-                )
-                html_cards.append(
-                    f"""
-                    <div style="border-left:4px solid #3b82f6;background:#eff6ff;padding:14px 16px;border-radius:8px;margin-bottom:16px;">
-                      <h3 style="margin:0 0 8px 0;color:#1e40af;font-size:16px;">👁️ 2WEEKコンタクト交換アラート（{badge}）</h3>
-                      <p style="margin:4px 0;font-size:14px;"><strong>メンバー:</strong> {m['name']}</p>
-                      <p style="margin:4px 0;font-size:14px;"><strong>使用レンズ:</strong> {m['memo']}</p>
-                      <p style="margin:4px 0;font-size:14px;"><strong>開封日:</strong> {m['startDate']} → <strong>交換期限: <span style="color:#dc2626;">{m['deadlineDate']}</span></strong></p>
-                    </div>
-                    """
-                )
-
-            if info["includeFuels"] and due_fuels:
-                subject_parts.append(f"社用ガソリン精算期限（{len(due_fuels)}件）")
-                plain_sections.append("■ 社用ガソリンカード 精算期限アラート")
-                for f in due_fuels:
-                    rem = f["remainingDays"]
-                    badge = f"残り {rem} 日" if rem > 0 else ("本日が精算期限！" if rem == 0 else f"{abs(rem)} 日超過！")
-                    plain_sections.append(
-                        f"・給油日: {f['useDate']} / 精算期限: {f['deadline']} （{badge}）\n"
-                        f"  計算モード: {f['mode']}\n"
-                        f"  メモ: {f['memo']}\n"
-                        f"  業務計上分: {f['bizKm']} km / {f['bizLiters']} L / ¥{f['bizYen']:,}\n"
-                        f"  私用除外（自己負担控除額）: {f['privLiters']} L / ¥{f['privYen']:,}\n"
-                    )
-                    html_cards.append(
-                        f"""
-                        <div style="border-left:4px solid #f59e0b;background:#fffbeb;padding:14px 16px;border-radius:8px;margin-bottom:16px;">
-                          <h3 style="margin:0 0 8px 0;color:#92400e;font-size:16px;">⛽ 社用ガソリンカード精算期限（{badge}）</h3>
-                          <p style="margin:4px 0;font-size:14px;"><strong>給油日:</strong> {f['useDate']} ／ <strong>精算期限: <span style="color:#dc2626;">{f['deadline']}</span></strong></p>
-                          <p style="margin:4px 0;font-size:14px;"><strong>算出モード:</strong> {f['mode']}（{f['memo']}）</p>
-                          <p style="margin:4px 0;font-size:14px;"><strong>🏢 業務経費計上:</strong> {f['bizKm']} km（{f['bizLiters']} L / <strong>¥{f['bizYen']:,}</strong>）</p>
-                          <p style="margin:4px 0;font-size:14px;"><strong>🏠 私用分除外（自己負担精算額）:</strong> {f['privLiters']} L / <strong style="color:#dc2626;">¥{f['privYen']:,}</strong></p>
-                        </div>
-                        """
-                    )
-
-            subject = "【期限アラート】" + " ＆ ".join(subject_parts)
-            plain_body = "\n".join(plain_sections)
+            rem = m["remainingDays"]
+            badge = f"残り {rem} 日" if rem > 0 else ("本日が交換日です！" if rem == 0 else f"期限を {abs(rem)} 日超過しています！")
+            subject = f"【コンタクト交換アラート】{m['name']}さん（{badge}）"
+            plain_body = (
+                f"{m['name']} さん、おはようございます。\n"
+                f"2WEEKコンタクトの交換期限をお知らせします。\n\n"
+                f"■ 2WEEKコンタクト交換アラート\n"
+                f"・対象メンバー: {m['name']}\n"
+                f"・使用レンズ: {m['memo']}\n"
+                f"・開封日: {m['startDate']}\n"
+                f"・交換期限日: {m['deadlineDate']} （{badge}）\n\n"
+                f"管理アプリ: https://kuuasdfghjk-afk.github.io/contact-fuel-manager/\n"
+            )
             html_body = f"""
             <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e2e8f0;border-radius:12px;">
-              <h2 style="color:#0f172a;margin-top:0;">🔔 コンタクト＆社用ガソリン期限管理通知</h2>
-              <p style="color:#475569;font-size:14px;">{m['name']} さん、期限3日前以内の項目をお知らせします。</p>
-              {''.join(html_cards)}
+              <h2 style="color:#0f172a;margin-top:0;">🔔 2WEEKコンタクト交換期限通知</h2>
+              <p style="color:#475569;font-size:14px;">{m['name']} さん、コンタクトの交換期限（3日前以内）をお知らせします。</p>
+              <div style="border-left:4px solid #3b82f6;background:#eff6ff;padding:14px 16px;border-radius:8px;margin-bottom:16px;">
+                <h3 style="margin:0 0 8px 0;color:#1e40af;font-size:16px;">👁️ 2WEEKコンタクト交換アラート（{badge}）</h3>
+                <p style="margin:4px 0;font-size:14px;"><strong>メンバー:</strong> {m['name']}</p>
+                <p style="margin:4px 0;font-size:14px;"><strong>使用レンズ:</strong> {m['memo']}</p>
+                <p style="margin:4px 0;font-size:14px;"><strong>開封日:</strong> {m['startDate']} → <strong>交換期限: <span style="color:#dc2626;">{m['deadlineDate']}</span></strong></p>
+              </div>
               <hr style="border:none;border-top:1px solid #e2e8f0;margin:16px 0;" />
-              <p style="color:#64748b;font-size:12px;">※交換・精算完了後は管理アプリからワンタップで更新できます。</p>
+              <p style="color:#64748b;font-size:12px;">※新しいレンズに交換したら、<a href="https://kuuasdfghjk-afk.github.io/contact-fuel-manager/">管理アプリ</a>からワンタップで更新できます。</p>
             </div>
             """
 
@@ -1335,6 +1287,80 @@ class AppHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 conn.commit()
                 conn.close()
 
+            broadcast_sse("sync")
+            self._send_json({"ok": True, "state": get_full_state(pull_cloud=False)})
+            return
+
+        if path == "/api/workout-records":
+            workout_date = body.get("workoutDate") or today_jst().isoformat()
+            d0 = datetime.date.fromisoformat(workout_date)
+            deadline = (d0 + datetime.timedelta(days=180)).isoformat()
+            parts = body.get("parts") or []
+            if isinstance(parts, list):
+                parts_str = ",".join(str(p).strip() for p in parts if str(p).strip())
+            else:
+                parts_str = str(parts).strip()
+            mode = f"WORKOUT:{parts_str}"
+            memo = body.get("memo") or ""
+
+            if supabase_client.is_supabase_enabled():
+                try:
+                    supabase_client.sb_request(
+                        "POST",
+                        "fuel_records",
+                        body={
+                            "useDate": workout_date,
+                            "deadline": deadline,
+                            "mode": mode,
+                            "memo": memo,
+                            "bizKm": 0,
+                            "bizLiters": 0,
+                            "bizYen": 0,
+                            "privLiters": 0,
+                            "privYen": 0,
+                            "settled": 0,
+                            "createdAt": now_iso,
+                        },
+                    )
+                    sync_from_supabase()
+                    broadcast_sse("sync")
+                    self._send_json({"ok": True, "state": get_full_state(pull_cloud=False)})
+                    return
+                except Exception as e:
+                    print(f"[Supabase POST workout_records] {e}")
+
+            with db_lock:
+                conn = get_db_connection()
+                conn.execute(
+                    """
+                    INSERT INTO fuel_records (
+                        useDate, deadline, mode, memo, bizKm, bizLiters, bizYen, privLiters, privYen, settled, createdAt
+                    ) VALUES (?, ?, ?, ?, 0, 0, 0, 0, 0, 0, ?)
+                    """,
+                    (workout_date, deadline, mode, memo, now_iso),
+                )
+                conn.commit()
+                conn.close()
+
+            broadcast_sse("sync")
+            self._send_json({"ok": True, "state": get_full_state(pull_cloud=False)})
+            return
+
+        if path == "/api/fuel-records/bulk-delete":
+            ids = [int(x) for x in (body.get("ids") or []) if str(x).isdigit()]
+            if ids:
+                placeholders = ",".join("?" for _ in ids)
+                with db_lock:
+                    conn = get_db_connection()
+                    conn.execute(f"DELETE FROM fuel_records WHERE id IN ({placeholders})", ids)
+                    conn.commit()
+                    conn.close()
+                if supabase_client.is_supabase_enabled():
+                    try:
+                        ids_str = ",".join(str(i) for i in ids)
+                        supabase_client.sb_request("DELETE", "fuel_records", {"id": f"in.({ids_str})"})
+                    except Exception as e:
+                        print(f"[Supabase bulk delete fuel_records] {e}")
             broadcast_sse("sync")
             self._send_json({"ok": True, "state": get_full_state(pull_cloud=False)})
             return

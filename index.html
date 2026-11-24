@@ -3671,7 +3671,7 @@
         return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
       }
       if (urlStr === "/api/fuel-records" && method === "POST") {
-        await sbFetch("fuel_records", "POST", "", { ...body, settled: 0, createdAt: nowIso });
+        await sbFetch("fuel_records", "POST", "", { ...body, deadline: "2099-12-31", settled: 1, createdAt: nowIso });
         return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
       }
       if (urlStr === "/api/workout-records" && method === "POST") {
@@ -3679,7 +3679,7 @@
         const partsStr = Array.isArray(body.parts) ? body.parts.join(",") : String(body.parts || "");
         await sbFetch("fuel_records", "POST", "", {
           useDate: wDate,
-          deadline: addDays(wDate, 180),
+          deadline: "2099-12-31",
           mode: `WORKOUT:${partsStr}`,
           memo: body.memo || "",
           bizKm: 0,
@@ -3687,7 +3687,7 @@
           bizYen: 0,
           privLiters: 0,
           privYen: 0,
-          settled: 0,
+          settled: 1,
           createdAt: nowIso
         });
         return makeJsonResponse({ ok: true, state: await buildDirectSupabaseState() });
